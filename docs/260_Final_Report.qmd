@@ -29,18 +29,11 @@ Chan, E. Y. S., et al. (2021). "Impact of COVID-19 on Excess Mortality, Life Exp
 
 ## Methods
 
-Population data: 
-Data source: NST-EST2024-POP.xlsx  information about data collection source:  data collected by U.S. Census Bureau. From website: 
-https://www.census.gov/data/tables/time-series/demo/popest/2020s-state-total.html
+Population Data: Source: NST-EST2024-POP.xlsx, collected by the U.S. Census Bureau. Website: https://www.census.gov/data/tables/time-series/demo/popest/2020s-state-total.html. Time Frame: 2020 to 2024. Provides annual state-level population estimates, used for calculating per capita COVID-19 case and death rates.
 
-data collection time frame: from 2020 to 2024.
-Provides annual state-level population estimates for the years 2020 to 2024. This dataset is used to calculate per capita COVID-19 case and death rates.
+Regional Data: Source: JSON file hosted on GitHub. URL: https://github.com/datasciencelabs/2024/raw/refs/heads/main/data/regions.json. Defines regional groupings of U.S. states and territories (e.g., "NY & NJ & PR & VI") for aggregated analysis.
 
-Regional Data: Source: JSON file hosted on GitHub. URL: https://github.com/datasciencelabs/2024/raw/refs/heads/main/data/regions.json. Description: Defines regional groupings of U.S. states and territories (e.g., "NY & NJ & PR & VI") for aggregated regional analysis.
-
-COVID-19 Cases and Death Data: Source: Centers for Disease Control and Prevention (CDC) API. 
-data collection time frame: January 22, 2020, to May 10, 2023
-API Endpoint: https://data.cdc.gov/resource/pwn4-m3yp.json. Description: Provides daily records of new COVID-19 cases and deaths at the state level from 2020 to 2024.
+COVID-19 Cases and Death Data: Source: Centers for Disease Control and Prevention (CDC) API. Endpoint: https://data.cdc.gov/resource/pwn4-m3yp.json. Time Frame: January 22, 2020, to May 10, 2023. Provides daily records of new cases and deaths at the state level.
 
 
 for Q1：
