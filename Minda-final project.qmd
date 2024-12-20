@@ -1,0 +1,191 @@
+---
+title: Final_Project
+date: 2024-10-04
+format: pdf
+---
+
+
+Population Data Processing
+```{r}
+# Load required libraries
+library(readxl)
+library(tidyr)
+library(dplyr)
+library(httr2)
+library(tidyverse)
+library(janitor)
+library(lubridate)
+library(jsonlite)
+
+
+file_path <- "NST-EST2024-POP.xlsx"
+
+data <- read_excel(file_path, sheet = "NST-EST2024-POP", skip = 3)
+
+colnames(data) <- c("Geographic_Area", "Base_2020", "2020", "2021", "2022", "2023", "2024")
+
+data <- data |>
+  filter(!is.na(Geographic_Area)) |>
+  filter(str_starts(Geographic_Area, "\\.")) |> 
+  mutate(Geographic_Area = str_replace(Geographic_Area, "^\\.", "")) |>
+  select(-Base_2020) # Drop the Base_2020 column
+
+population <- data |>
+  pivot_longer(cols = starts_with("20"), 
+               names_to = "year", 
+               values_to = "population") |>
+  rename(state_name = Geographic_Area) |>
+                mutate(state = case_when(
+                state_name == "District of Columbia" ~ "DC",
+                state_name == "Puerto Rico" ~ "PR",
+                TRUE ~ state.abb[match(state_name, state.name)]  # Use state.abb for other states
+              ))
+
+
+population_filtered <- data_long |>
+  mutate(state_name = reorder(state_name, population)) |>
+  ggplot(aes(x = population, y = state_name, fill = year)) +
+  geom_col() +
+  coord_flip() +
+  facet_wrap(~year, scales = "free_y") +
+  labs(title = "State Populations for 2021 and 2022",
+       x = "Population",
+       y = "State") +
+  theme_minimal()  +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+print(population_filtered)
+
+
+```
+
+Population Processing 
+
+```{r}
+
+url <- "https://github.com/datasciencelabs/2024/raw/refs/heads/main/data/regions.json"
+regions <- fromJSON(url, simplifyDataFrame = FALSE)
+regions <- map_df(regions, function(x) 
+  data.frame(region=x$region, region_name = x$region_name, state_name = x$states))
+regions$region_name <- gsub("New York and New Jersey, Puerto Rico, Virgin Islands", "NY & NJ & PR & VI",regions$region_name)
+
+population <- population |>
+  left_join(regions, by = "state_name")
+
+print(population) 
+
+
+
+
+```
+
+
+case processing
+```{r}
+
+api <- "https://data.cdc.gov/resource/pwn4-m3yp.json"
+response <- request(api) |> 
+  req_url_query(`$limit` = 10000000000) |>
+  req_perform()                       
+
+cases_raw <- response |> 
+  resp_body_json(simplifyVector = TRUE) |> 
+  as_tibble()
+
+print(cases_raw)
+
+cases_clean <- cases_raw |> 
+  select(state, end_date, new_cases) |>             
+  rename(date = end_date, cases = new_cases) |>     
+  mutate(
+    cases = as.numeric(cases),                     
+    date = as.Date(date)                         
+  )
+
+death_clean <- cases_raw |> 
+  select(state, end_date, new_deaths) |>             
+  rename(date = end_date, deaths = new_deaths) |>     
+  mutate(
+    deaths = as.numeric(deaths),                     
+    date = as.Date(date)                         
+  )
+
+
+print(cases_clean)
+print(death_clean)
+
+
+
+
+```
+
+
+Join
+```{r}
+
+cases <- cases_clean |>
+  left_join(population, by = "state") |>            
+  mutate(cases_per_100k = (cases / population) * 100000) |> 
+  filter(!is.na(cases_per_100k))   
+
+death <- death_clean |>
+  left_join(population, by = "state") |>            
+  mutate(deaths_per_100k = (deaths / population) * 100000) |> 
+  filter(!is.na(deaths_per_100k)) 
+
+ggplot(cases, aes(x = date, y = cases_per_100k, color = state_name)) +
+  geom_line() +                                           
+  facet_wrap(~ region_name, scales = "free_y") +         
+  labs(
+    x = "Date",
+    y = "Cases per 100,000",
+    color = "State"
+  ) +
+  theme_minimal() +
+    theme(
+    legend.position = "bottom",                          
+    legend.key.size = unit(0.2, "cm"),                    
+    legend.text = element_text(size = 7),                
+    axis.text.x = element_text(angle = 45, hjust = 1)     
+  )
+
+```
+Wave
+```{r}
+
+
+library(ggplot2)
+library(dplyr)
+library(patchwork)
+
+deaths <- death |> mutate(deaths = ifelse(deaths < 0, NA, deaths))
+cases <- cases |> mutate(date = as.Date(date))
+deaths <- deaths |> mutate(date = as.Date(date))
+
+cases_plot <- ggplot(cases, aes(x = date, y = cases)) +
+  geom_line(color = "blue", size = 1) +
+  labs(
+    title = "Pandemic Cases Trend (2020-2024)",
+    x = "Date",
+    y = "Total Cases"
+  ) +
+  theme_minimal()
+
+deaths_plot <- ggplot(deaths, aes(x = date, y = deaths)) +
+  geom_line(color = "red", size = 1) +
+  labs(
+    title = "Pandemic Deaths Trend (2020-2024)",
+    x = "Date",
+    y = "Total Deaths"
+  ) +
+  theme_minimal()
+
+combined_plot <- cases_plot / deaths_plot
+
+print(combined_plot)
+
+anomalies <- deaths |> filter(deaths < 0)
+print(anomalies)
+
+
+```
+
