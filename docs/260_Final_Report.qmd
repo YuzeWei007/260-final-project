@@ -26,15 +26,21 @@ By investigating those key aspects of the pandemic, this study seeks to provide 
 
 -   **Guidelines**: Describe the dataset(s) you used, including information about data collection (e.g., sources, time frame). Outline your approach for cleaning and analyzing the data, including any statistical or computational methods applied. Clearly explain any assumptions or limitations in your approach.
 
-Population Data: Source: NST-EST2024-POP.xlsx, collected by the U.S. Census Bureau. Website: https://www.census.gov/data/tables/time-series/demo/popest/2020s-state-total.html. Time Frame: 2020 to 2024. Provides annual state-level population estimates, used for calculating per capita COVID-19 case and death rates.
+Data Q123
 
-Regional Data: Source: JSON file hosted on GitHub. URL: https://github.com/datasciencelabs/2024/raw/refs/heads/main/data/regions.json. Defines regional groupings of U.S. states and territories (e.g., "NY & NJ & PR & VI") for aggregated analysis.
+1.Population data: Data source: NST-EST2024-POP.xlsx information about data collection source: data collected by U.S. Census Bureau. From website: https://www.census.gov/data/tables/time-series/demo/popest/2020s-state-total.html
 
-COVID-19 Cases and Death Data: Source: Centers for Disease Control and Prevention (CDC) API. Endpoint: https://data.cdc.gov/resource/pwn4-m3yp.json. Time Frame: January 22, 2020, to May 10, 2023. Provides daily records of new cases and deaths at the state level.
+data collection time frame: from 2020 to 2024. Provides annual state-level population estimates for the years 2020 to 2024. This dataset is used to calculate per capita COVID-19 case and death rates.
 
-for Q1： This analysis processes and analyzes population and COVID-19 data (2020–2024) using a combination of data cleaning, transformation, and visualization techniques. The R programming language and libraries such as readxl, dplyr, tidyr, ggplot2, janitor, and lubridate were employed. Population data from an Excel file was cleaned by standardizing geographic names and reshaping it into a long format for ease of analysis. It was merged with regional data extracted from a JSON file using jsonlite, mapping states to predefined U.S. regions. COVID-19 case and death data were retrieved via an API using httr2, cleaned to handle anomalies like negative values, and normalized by population to compute metrics per 100,000 people. Data visualization, using ggplot2, involved smoothed time-series plots for identifying pandemic waves and faceted plots for regional analysis. A rolling average approach was applied to smooth fluctuations, highlighting significant trends in cases and deaths. Each region's unique patterns were visualized, emphasizing geographic variability. While assumptions include consistent reporting and static yearly populations, this approach integrates advanced data handling and visualization techniques to provide clear insights into pandemic trends.
+2.Regional Data: Source: JSON file hosted on GitHub. URL: https://github.com/datasciencelabs/2024/raw/refs/heads/main/data/regions.json. Description: Defines regional groupings of U.S. states and territories (e.g., "NY & NJ & PR & VI") for aggregated regional analysis.
 
-To clean and analyze the data, we utilized various R packages, including readxl for reading Excel files, dplyr and tidyr for data cleaning and manipulation, jsonlite for processing JSON data, httr2 for API requests, lubridate for date management, and ggplot2 for visualization. The analysis started with population data from an Excel file, where unnecessary rows were filtered, geographic names cleaned, and the data reshaped into a long format using pivot_longer. State abbreviations were added for consistency, and regions were incorporated using external JSON data. For COVID-19 cases and deaths, we retrieved data via an API, selected relevant columns, converted data types, and handled anomalies such as negative values by replacing them with NA. These datasets were joined by state to compute cases and deaths per 100,000 population for normalization. Finally, we visualized trends using time-series plots, faceted by regions, and smoothed data to identify significant waves from 2020 to 2024. This approach ensured comprehensive data integration, normalization, and insightful visual analysis across different demographic dimensions.
+3.COVID-19 Cases and Death Data: Source: Centers for Disease Control and Prevention (CDC) API. data collection time frame: January 22, 2020, to May 10, 2023 API Endpoint: https://data.cdc.gov/resource/pwn4-m3yp.json. Description: Provides daily records of new COVID-19 cases and deaths at the state level from 2020 to 2024.
+
+Data Q45
+
+4.Weekly Counts of Deaths by Jurisdiction and Age Data: Data source: The dataset "Weekly Counts of Deaths by Jurisdiction and Age" is sourced from the National Center for Health Statistics (NCHS). Access URL: https://data.cdc.gov/NCHS/Weekly-Counts-of-Deaths-by-Jurisdiction-and-Age/y5bj-9g5w/about_data File used: Weekly_Counts_of_Deaths_by_Jurisdiction_and_Age_20241220.csv. Time period: The dataset covers weekly counts of deaths from January 10, 2015, to September 16, 2023. Description: This dataset provides weekly counts of deaths categorized by jurisdiction and age groups across the United States. It spans multiple years and is used to analyze trends in mortality, including patterns during significant public health events such as the COVID-19 pandemic.
+
+5.  Intercensal Population Estimates (2010-2020): Data source: U.S. Census Bureau. Access URL: https://www.census.gov/data/tables/time-series/demo/popest/intercensal-2010-2020-national.html File used: nst-est2020int-pop.xlsx. Description: This dataset contains intercensal population estimates for the United States, bridging the gaps between decennial censuses (2010 and 2020). It offers annual national-level population figures for demographic analyses, allowing researchers to adjust for population changes over the decade. Both datasets are integral for demographic and mortality analysis, aiding in understanding trends over time and their implications on public health and population dynamics.
 
 ## **Results (500-600 words)**
 
@@ -52,11 +58,51 @@ print(img)
 
 The COVID-19 case and mortality trends from 2020 to 2024 reveal six distinct waves, each varying in intensity and duration. Case trends show an initial gradual increase during Wave 1, followed by a sharp rise in Wave 2, peaking significantly in Wave 3, and then tapering into moderate peaks during Waves 4, 5, and 6. Mortality trends closely align with these waves, with the highest mortality observed in Wave 3, a noticeable decline in Wave 4, and relatively lower but steady levels in Waves 5 and 6. The provided charts highlight the temporal dynamics of the pandemic, illustrating the fluctuation of cases and mortality over time.
 
+#### 
+
 ## **Discussion (600-700 words)**
 
 -   **Purpose**: In the discussion, interpret the significance of your findings, explore potential implications, and relate the results back to your initial research questions or hypotheses. This section allows you to discuss any patterns, unexpected findings, or limitations and suggest possible future research.
 
 -   **Guidelines**: Analyze your results in the context of your research question, linking them back to the background information from the introduction. Consider what your findings reveal, any limitations they may have, and how they might impact future work or policy. End with a brief conclusion summarizing your main insights.
+
+Q4 Estimate excess mortality for each week for each state. Do COVID-19 deaths explain the excess mortality?
+
+COVID-19 deaths partially explain excess mortality, as evidenced by the statistically significant positive relationship between COVID-19 death rates and excess mortality in the regression analysis. The coefficient of 0.146 indicates that for every additional 10 COVID-19 deaths per 100,000 people, excess mortality increases by 1.46 per 100,000 on average. However, the low R2R^2R2 value (0.03076) suggests that COVID-19 deaths account for only a small fraction of the variation in excess mortality. This is because excess mortality is a complex phenomenon influenced by multiple factors beyond direct COVID-19 deaths. These include indirect deaths caused by delayed healthcare, mental health crises, and economic disruptions, as well as reductions in other types of deaths (e.g., traffic accidents) during lockdowns. Additionally, underreporting of COVID-19 deaths and regional differences in healthcare infrastructure and policy responses further contribute to the gap between COVID-19 deaths and excess mortality. While COVID-19 deaths are an important driver, other covariates such as demographic factors, socioeconomic conditions, and state-level interventions likely play a significant role in shaping excess mortality, underscoring the need for more comprehensive models to fully explain the observed trends.
+
+#### **Why is** R2R^2R2 Low?
+
+The low R2R^2R2 value (0.03076) indicates that only about **3% of the variance** in excess mortality is explained by the independent variable (deaths_per_100k\text{deaths\_per\_100k}deaths_per_100k). This is expected due to the following reasons:
+
+##### **(1) Complex Nature of Excess Mortality**
+
+-   **Definition of Excess Mortality:** Excess mortality includes all deaths above the expected baseline during the pandemic, which encompasses both direct COVID-19 deaths and **indirect deaths** caused by other factors like:
+
+    -   Healthcare disruptions (e.g., reduced access to treatments).
+
+    -   Behavioral changes (e.g., increased substance use, stress-related deaths).
+
+    -   Reduced non-pandemic-related deaths (e.g., fewer traffic accidents due to lockdowns).
+
+    Since indirect deaths may not be closely correlated with COVID-19 death rates, this introduces a significant amount of variability, reducing the model's explanatory power.
+
+##### **(2) Missing Covariates**
+
+-   Excess mortality is influenced by **multiple factors** that are not captured in the current model, such as:
+
+    -   **Population demographics:** Age structure and pre-existing health conditions vary across states, significantly affecting baseline mortality and vulnerability to COVID-19.
+
+    -   **Healthcare infrastructure:** Availability of hospital beds, ICU capacity, and access to care affect mortality outcomes but are not accounted for in this model.
+
+    -   **Policy interventions:** Variations in state policies (e.g., lockdowns, mask mandates) influence both COVID-19 and non-COVID deaths.
+
+    -   **Economic and social disparities:** Socioeconomic factors, such as poverty and income inequality, have a strong impact on health outcomes.
+
+##### **(3) High Variability in Data**
+
+-   The scatterplot shows **wide dispersion** of excess mortality values across different levels of COVID-19 deaths. This reflects noise in the data caused by regional differences in how deaths are reported, recorded, and classified.
+
+-   Some states may underreport COVID-19 deaths, inflating the indirect component of excess mortality and weakening the correlation.
 
 ## References
 
