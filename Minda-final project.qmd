@@ -168,29 +168,24 @@ deaths <- death |> mutate(deaths = ifelse(deaths < 0, NA, deaths))
 cases <- cases |> mutate(date = as.Date(date))
 deaths <- deaths |> mutate(date = as.Date(date))
 
+
 # Identity wave period
-results <- deaths |>
-  left_join(cases, by = "date") |>
+results <- deaths |> 
   mutate(period = case_when(
     date >= as.Date("2020-03-15") & date <= as.Date("2020-06-01") ~ "Wave1",
-    date >= as.Date("2020-06-15") & date <= as.Date("2020-10-01") ~ "Wave2",
-    date >= as.Date("2020-11-15") & date <= as.Date("2021-04-15") ~ "Wave3",
-    date >= as.Date("2021-07-15") & date <= as.Date("2021-10-30") ~ "Wave4",
-    date >= as.Date("2021-12-01") & date <= as.Date("2022-04-01") ~ "Wave5",
-    date >= as.Date("2021-05-15") & date <= as.Date("2022-10-01") ~ "Wave6"
+    date >= as.Date("2020-07-01") & date <= as.Date("2020-10-01") ~ "Wave2",
+    date >= as.Date("2020-12-01") & date <= as.Date("2021-04-30") ~ "Wave3",
+    date >= as.Date("2021-08-15") & date <= as.Date("2021-10-30") ~ "Wave4",
+    date >= as.Date("2021-12-01") & date <= as.Date("2022-04-01") ~ "Wave5"
   )) |> 
-  filter(!is.na(period)) |>
+  filter(!is.na(period)) |> 
   group_by(period) |> 
   summarise(
-    peak_death = max(deaths, na.rm = TRUE),                      # Max deaths
-    peak_date_death = date[which.max(deaths)],                   # Date for max deaths
-    peak_cases = max(cases, na.rm = TRUE),                       # Max cases
-    peak_date_cases = date[which.max(cases)]                     # Date for max cases
+    peak_value = max(deaths, na.rm = TRUE),
+    peak_date = date[which.max(deaths)]
   )
 
-# Print the results
 print(results)
-
 
 ```
 
@@ -221,9 +216,9 @@ deaths_plot <- ggplot(deaths, aes(x = date, y = deaths)) +
 
 # Define time periods for waves
 time_periods <- data.frame(
-  period = c("Wave1", "Wave2", "Wave3", "Wave4", "Wave5", "Wave6"),
-  start_date = as.Date(c("2020-03-15", "2020-06-15", "2020-11-15", "2021-07-15", "2021-12-01", "2022-05-15")),
-  end_date = as.Date(c("2020-06-01", "2020-10-01", "2021-04-15", "2021-10-30", "2022-04-01", "2022-10-01"))
+  period = c("Wave1", "Wave2", "Wave3", "Wave4", "Wave5"),
+  start_date = as.Date(c("2020-03-15", "2020-07-01", "2020-12-01", "2021-08-15", "2021-12-01")),
+  end_date = as.Date(c("2020-06-01", "2020-10-01", "2021-04-30", "2021-10-30", "2022-04-01"))
 )
 
 # Add dashed rectangules
@@ -247,40 +242,7 @@ deaths_plot <- deaths_plot +
       "Wave2" = "#ff7f0e", 
       "Wave3" = "#2ca02c",
       "Wave4" = "#17becf",
-      "Wave5" = "#FFD700",
-      "Wave6" = "brown"
-    ),
-    name = "Time Periods"
-  ) +
-  theme(
-    legend.title = element_text(size = 12, face = "plain"),  
-    legend.text = element_text(size = 10),                
-    legend.key.size = unit(0.8, "cm"),           
-    legend.spacing.y = unit(0.3, "cm"),                 
-  )
-
-cases_plot <- cases_plot +
-  geom_rect(
-    data = time_periods,
-    aes(
-      xmin = start_date,
-      xmax = end_date,
-      ymin = 0,
-      ymax = 8*10**5,
-      color = period
-    ),
-    fill = NA,
-    size = 0.9,
-    inherit.aes = FALSE
-  ) +
-  scale_color_manual(
-    values = c(
-      "Wave1" = "#87CEEB",
-      "Wave2" = "#ff7f0e", 
-      "Wave3" = "#2ca02c",
-      "Wave4" = "#17becf",
-      "Wave5" = "#FFD700",
-      "Wave6" = "brown"
+      "Wave5" = "#FFD700"
     ),
     name = "Time Periods"
   ) +
@@ -295,7 +257,7 @@ combined_plot <- cases_plot / deaths_plot
 print(combined_plot)
 
 anomalies <- deaths %>% filter(deaths < 0)
-#print(anomalies)
+# print(anomalies)
 
 
 ```
@@ -357,8 +319,8 @@ library(lubridate)
 
 wave_definitions <- tibble(
   wave = c("Wave1", "Wave2", "Wave3", "Wave4", "Wave5", "Wave6"),
- start_date = as.Date(c("2020-03-15", "2020-06-15", "2020-11-15", "2021-07-15", "2021-12-01", "2022-05-15")),
-  end_date = as.Date(c("2020-06-01", "2020-10-01", "2021-04-15", "2021-10-30", "2022-04-01", "2022-10-01"))
+  start_date = as.Date(c("2020-03-01","2020-10-01","2021-07-01","2021-12-01","2022-11-01","2023-10-01")),
+  end_date   = as.Date(c("2020-06-01","2021-03-01","2021-10-01","2022-03-01","2023-03-01","2024-12-01"))
 )
 
 add_wave <- function(df, wave_df) {
@@ -395,10 +357,7 @@ library(patchwork)
 
 combined_data <- bind_rows(cases_with_wave, deaths_with_wave)
 
-combined_data_filtered <- combined_data |>
-  filter(!is.na(wave))
-
-ggplot(combined_data_filtered, aes(x = date, y = value, color = wave)) +
+ggplot(combined_data, aes(x = date, y = value, color = wave)) +
   geom_line(alpha = 0.7, size = 1) +
   scale_color_brewer(palette = "Set1") +
   labs(
@@ -408,11 +367,8 @@ ggplot(combined_data_filtered, aes(x = date, y = value, color = wave)) +
     color = "Wave"
   ) +
   facet_wrap(~type, scales = "free_y") +
-  theme_minimal() +
-  theme(
-    plot.title = element_text(hjust = 0.5),
-    strip.text = element_text(size = 12, face = "bold")
-  )
+  theme_minimal()
+
 
 
 
@@ -462,8 +418,6 @@ print(population_2010_filtered)
 
 ```
 
-
-
 ```{r}
 
 data <- read_csv("Weekly_Counts_of_Deaths_by_Jurisdiction_and_Age_20241220.csv")
@@ -491,6 +445,132 @@ death_2015 <- death_2015 |>
 
 print(death_2015)
 
+
+
+  
+
+```
+
+prediction
+```{r}
+
+library(lubridate)
+death_2015 <- death_2015 |>
+  mutate(week = isoweek(date), year = year(date))
+
+deaths <- deaths |>
+  mutate(week = isoweek(date), year = year(date))
+
+
+historical_data <- death_2015 |> filter(year < 2020)
+
+print(historical_data)
+
+population_model <- historical_data |>
+  group_by(state) |>
+  do(model = lm(deaths_per_100k ~ poly(week, degree = 2) + year, data = .))
+
+future_weeks <- expand.grid(
+  state = unique(historical_data$state),
+  year = 2020:2024,
+  week = 1:52
+)
+
+predicted_data <- population_model |>
+  rowwise() |>
+  do(data.frame(
+    state = .$state,
+    year = future_weeks$year,
+    week = future_weeks$week,
+    predicted_deaths_per_100k = predict(.$model, newdata = future_weeks)
+  ))
+
+
+predicted_data <- predicted_data |> distinct()
+
+print(predicted_data)
+
+extracted_data_2020 = extracted_data  |> 
+  rename(real_death=deaths) |> 
+  mutate(week = isoweek(date), year = year(date)) |> 
+  filter(year>2019)
+
+deaths = deaths |>
+  left_join(extracted_data_2020, by = c("week","year","state")) |>
+  mutate(real_deaths_per_100k = (real_death / population) * 100000) |> 
+  filter(!is.na(real_deaths_per_100k)) 
+
+
+merged_death_2020_after_prediction <- deaths |>
+  left_join(predicted_data, by = c("state", "year", "week"))
+
+merged_death_2020_after_prediction <- merged_death_2020_after_prediction |>
+  mutate(excess_mortality = real_deaths_per_100k - predicted_deaths_per_100k)
+
+
+ggplot(merged_death_2020_after_prediction, aes(x = week, y = excess_mortality, color = state_name, group = state_name)) +
+  geom_line(size = 1) +
+  geom_point(size = 2) +
+  labs(
+    title = "Excess Mortality Trend by State",
+    x = "Date",
+    y = "Excess Mortality",
+    color = "State"
+  ) +
+  theme_minimal() +
+  theme(
+  )
+
+```
+
+confidence
+```{r}
+correlation <- cor(merged_death_2020_after_prediction$excess_mortality, merged_death_2020_after_prediction$deaths_per_100k, method = "pearson")
+print(paste("Pearson correlation coefficient:", correlation))
+
+
+ggplot(merged_death_2020_after_prediction, aes(x = deaths_per_100k, y = excess_mortality)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = TRUE, color = "blue") +
+  labs(title = "Relationship between COVID Deaths and Excess Mortality",
+       x = "COVID Deaths",
+       y = "Excess Mortality")
+
+
+model <- lm(excess_mortality ~ deaths_per_100k, data = merged_death_2020_after_prediction)
+
+
+summary(model)
+
+coef(model)  
+confint(model)  
+
+
+```
+
+Question5
+```{r}
+library(ggplot2)
+library(dplyr)
+
+
+
+for (i in regions2) {
+  region_data <- merged_death_2020_after_prediction |> filter(major_region == i)
+  
+  p <- ggplot(region_data, aes(x = date.x, y = excess_mortality, color = state_name)) +
+    geom_line(size = 1, alpha = 0.8) +
+    labs(
+      title = paste("excess_mortality per 100,000 in", i, "(2020-2024)"),
+      x = "Date",
+      y = "Deaths per 100,000",
+      color = "State"
+    ) +
+    theme_minimal() +
+    scale_x_date(date_breaks = "6 months", date_labels = "%b %Y")
+  
+  print(p)
+}
 
 
 ```
