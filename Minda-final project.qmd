@@ -170,20 +170,27 @@ deaths <- deaths |> mutate(date = as.Date(date))
 
 
 # Identity wave period
-results <- deaths |> 
+results <- deaths |>
+  left_join(cases, by = "date") |>
   mutate(period = case_when(
     date >= as.Date("2020-03-15") & date <= as.Date("2020-06-01") ~ "Wave1",
-    date >= as.Date("2020-07-01") & date <= as.Date("2020-10-01") ~ "Wave2",
-    date >= as.Date("2020-12-01") & date <= as.Date("2021-04-30") ~ "Wave3",
-    date >= as.Date("2021-08-15") & date <= as.Date("2021-10-30") ~ "Wave4",
-    date >= as.Date("2021-12-01") & date <= as.Date("2022-04-01") ~ "Wave5"
+    date >= as.Date("2020-06-15") & date <= as.Date("2020-10-01") ~ "Wave2",
+    date >= as.Date("2020-11-15") & date <= as.Date("2021-04-15") ~ "Wave3",
+    date >= as.Date("2021-07-15") & date <= as.Date("2021-10-30") ~ "Wave4",
+    date >= as.Date("2021-12-01") & date <= as.Date("2022-04-01") ~ "Wave5",
+    date >= as.Date("2021-05-15") & date <= as.Date("2022-10-01") ~ "Wave6"
   )) |> 
-  filter(!is.na(period)) |> 
+  filter(!is.na(period)) |>
   group_by(period) |> 
   summarise(
-    peak_value = max(deaths, na.rm = TRUE),
-    peak_date = date[which.max(deaths)]
+    peak_death = max(deaths, na.rm = TRUE),              
+    peak_date_death = date[which.max(deaths)],           
+    peak_cases = max(cases, na.rm = TRUE),                 
+    peak_date_cases = date[which.max(cases)]           
   )
+
+# Print the results
+print(results)
 
 print(results)
 
@@ -216,9 +223,9 @@ deaths_plot <- ggplot(deaths, aes(x = date, y = deaths)) +
 
 # Define time periods for waves
 time_periods <- data.frame(
-  period = c("Wave1", "Wave2", "Wave3", "Wave4", "Wave5"),
-  start_date = as.Date(c("2020-03-15", "2020-07-01", "2020-12-01", "2021-08-15", "2021-12-01")),
-  end_date = as.Date(c("2020-06-01", "2020-10-01", "2021-04-30", "2021-10-30", "2022-04-01"))
+  period = c("Wave1", "Wave2", "Wave3", "Wave4", "Wave5", "Wave6"),
+  start_date = as.Date(c("2020-03-15", "2020-06-15", "2020-11-15", "2021-07-15", "2021-12-01", "2022-05-15")),
+  end_date = as.Date(c("2020-06-01", "2020-10-01", "2021-04-15", "2021-10-30", "2022-04-01", "2022-10-01"))
 )
 
 # Add dashed rectangules
@@ -242,7 +249,40 @@ deaths_plot <- deaths_plot +
       "Wave2" = "#ff7f0e", 
       "Wave3" = "#2ca02c",
       "Wave4" = "#17becf",
-      "Wave5" = "#FFD700"
+      "Wave5" = "#FFD700",
+      "Wave6" = "brown"
+    ),
+    name = "Time Periods"
+  ) +
+  theme(
+    legend.title = element_text(size = 12, face = "plain"),  
+    legend.text = element_text(size = 10),                
+    legend.key.size = unit(0.8, "cm"),           
+    legend.spacing.y = unit(0.3, "cm"),                 
+  )
+
+cases_plot <- cases_plot +
+  geom_rect(
+    data = time_periods,
+    aes(
+      xmin = start_date,
+      xmax = end_date,
+      ymin = 0,
+      ymax = 8*10**5,
+      color = period
+    ),
+    fill = NA,
+    size = 0.9,
+    inherit.aes = FALSE
+  ) +
+  scale_color_manual(
+    values = c(
+      "Wave1" = "#87CEEB",
+      "Wave2" = "#ff7f0e", 
+      "Wave3" = "#2ca02c",
+      "Wave4" = "#17becf",
+      "Wave5" = "#FFD700",
+      "Wave6" = "brown"
     ),
     name = "Time Periods"
   ) +
@@ -257,7 +297,7 @@ combined_plot <- cases_plot / deaths_plot
 print(combined_plot)
 
 anomalies <- deaths %>% filter(deaths < 0)
-# print(anomalies)
+#print(anomalies)
 
 
 ```
@@ -265,6 +305,8 @@ anomalies <- deaths %>% filter(deaths < 0)
 
 
 Question2
+
+Supplementary plots
 
 ```{r}
 
@@ -310,6 +352,179 @@ for (i in regions2) {
 
 ```
 
+Supplementary plots for average death rate for each state
+```{r}
+# Ensure clean data and define wave periods
+deaths_table <- deaths |> 
+  mutate(date = as.Date(date)) |> 
+  mutate(deaths_per_100k = ifelse(deaths_per_100k < 0, 0, deaths_per_100k)) |> 
+  mutate(
+    wave = case_when(
+      date >= as.Date("2020-03-15") & date <= as.Date("2020-06-01") ~ "Wave1",
+      date >= as.Date("2020-06-15") & date <= as.Date("2020-10-01") ~ "Wave2",
+      date >= as.Date("2020-11-15") & date <= as.Date("2021-04-15") ~ "Wave3",
+      date >= as.Date("2021-07-15") & date <= as.Date("2021-10-30") ~ "Wave4",
+      date >= as.Date("2021-12-01") & date <= as.Date("2022-04-01") ~ "Wave5",
+      date >= as.Date("2021-05-15") & date <= as.Date("2022-10-01") ~ "Wave6",
+      TRUE ~ NA_character_
+    )
+  )
+
+# Filter out rows without assigned wave periods
+deaths_table <- deaths_table |> filter(!is.na(wave))
+
+# Summarize performance by wave and state
+state_wave_summary <- deaths_table |> 
+  group_by(state_name, wave) |> 
+  summarise(
+    peak_death_rate = max(deaths_per_100k, na.rm = TRUE),  # Peak death rate
+    avg_death_rate = mean(deaths_per_100k, na.rm = TRUE),  # Average death rate
+    total_deaths = sum(deaths, na.rm = TRUE),              # Total deaths
+    .groups = "drop"
+  )
+
+# Rank states by performance within each wave
+state_wave_summary <- state_wave_summary |> 
+  group_by(wave) |> 
+  mutate(
+    rank_peak = rank(-peak_death_rate),  # Rank by peak death rate (descending)
+    rank_avg = rank(-avg_death_rate),   # Rank by average death rate (descending)
+    rank_total = rank(-total_deaths)    # Rank by total deaths (descending)
+  ) |> 
+  ungroup()
+
+# Print summary table
+print(state_wave_summary)
+
+#Top 5 states by peak death rate for each wave
+top_states_peak <- state_wave_summary |> 
+  group_by(wave) |> 
+  slice_min(rank_peak, n = 5) |> 
+  ungroup()
+
+ggplot(top_states_peak, aes(x = reorder(state_name, -peak_death_rate), y = peak_death_rate, fill = wave)) +
+  geom_col() +
+  facet_wrap(~wave, scales = "free") +
+  labs(
+    title = "Top 5 States by Peak Death Rate During Each Wave",
+    x = "State",
+    y = "Peak Death Rate (per 100,000)"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+# Filter to include only the top 5 states by average death rate for each wave
+top_5_avg_rank <- state_wave_summary |> 
+  group_by(wave) |> 
+  slice_min(order_by = rank_avg, n = 5) |> 
+  ungroup()
+
+# Plot top 5 states by average death rate for each wave
+ggplot(top_5_avg_rank, aes(x = reorder(state_name, rank_avg), y = avg_death_rate, fill = wave)) +
+  geom_col() +
+  facet_wrap(~wave, scales = "free") +
+  labs(
+    title = "Top 5 States by Average Death Rate During Each Wave",
+    x = "State",
+    y = "Average Death Rate (per 100,000)"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "bottom"
+  )
+```
+```{r}
+# Filter to include only the bottom 5 states by average death rate for each wave
+bottom_5_avg_rank <- state_wave_summary |> 
+  group_by(wave) |> 
+  slice_max(order_by = rank_avg, n = 5) |>  # Select states with the highest rank_avg (lowest average death rate)
+  ungroup()
+
+# Plot lowest 5 states by average death rate for each wave
+ggplot(bottom_5_avg_rank, aes(x = reorder(state_name, avg_death_rate), y = avg_death_rate, fill = wave)) +
+  geom_col() +
+  facet_wrap(~wave, scales = "free") +
+  labs(
+    title = "Lowest 5 States by Average Death Rate During Each Wave",
+    x = "State",
+    y = "Average Death Rate (per 100,000)"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "bottom"
+  )
+
+```
+
+Main Table
+```{r}
+top_and_bottom_5_table <- state_wave_summary |> 
+  group_by(wave) |> 
+  slice_min(order_by = rank_avg, n = 5) |>  # Top 5 states (highest average death rate)
+  mutate(category = "Top 5 (Highest)") |>  # Add category for top 5
+  bind_rows(
+    state_wave_summary |> 
+      group_by(wave) |> 
+      slice_max(order_by = rank_avg, n = 5) |>  # Lowest 5 states (lowest average death rate)
+      mutate(category = "Bottom 5 (Lowest)")  # Add category for bottom 5
+  ) |> 
+  ungroup() |> 
+  arrange(wave, category, rank_avg)  # Sort by wave, category, and rank
+
+# Print the table
+print(top_and_bottom_5_table)
+
+```
+```{r}
+top_and_bottom_5_table <- state_wave_summary |> 
+  group_by(wave) |> 
+  slice_min(order_by = rank_avg, n = 2) |>  # Top 5 states (highest average death rate)
+  mutate(category = "Top 5 (Highest)") |>  # Add category for top 5
+  bind_rows(
+    state_wave_summary |> 
+      group_by(wave) |> 
+      slice_max(order_by = rank_avg, n = 2) |>  # Lowest 5 states (lowest average death rate)
+      mutate(category = "Bottom 5 (Lowest)")  # Add category for bottom 5
+  ) |> 
+  ungroup() |> 
+  arrange(wave, category, rank_avg)  # Sort by wave, category, and rank
+
+# Print the table
+View(top_and_bottom_5_table)
+```
+
+```{r}
+library(tidytext)
+
+ggplot(top_and_bottom_5_avg_rank, aes(x = reorder_within(state_name, avg_death_rate, wave), 
+                                      y = avg_death_rate, 
+                                      fill = rank_category)) +
+  geom_col() +
+  facet_wrap(~wave, scales = "free") +
+  scale_x_reordered() +
+  scale_fill_manual(
+    values = c("Top 5 (Highest)" = "#FF69B4", "Bottom 5 (Lowest)" = "blue"),
+    name = "Category"
+  ) +
+  labs(
+    title = "Top and Bottom 5 States by Average Death Rate During Each Wave",
+    x = "State",
+    y = "Average Death Rate (per 100,000)"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.text.y = element_text(size = 10),
+    legend.position = "bottom",
+    strip.text = element_text(size = 10, face = "bold"),
+    plot.title = element_text(size = 12, face = "bold", hjust = 0.5)
+  )
+
+```
+
 
 Question3
 
@@ -319,8 +534,8 @@ library(lubridate)
 
 wave_definitions <- tibble(
   wave = c("Wave1", "Wave2", "Wave3", "Wave4", "Wave5", "Wave6"),
-  start_date = as.Date(c("2020-03-01","2020-10-01","2021-07-01","2021-12-01","2022-11-01","2023-10-01")),
-  end_date   = as.Date(c("2020-06-01","2021-03-01","2021-10-01","2022-03-01","2023-03-01","2024-12-01"))
+ start_date = as.Date(c("2020-03-15", "2020-06-15", "2020-11-15", "2021-07-15", "2021-12-01", "2022-05-15")),
+  end_date = as.Date(c("2020-06-01", "2020-10-01", "2021-04-15", "2021-10-30", "2022-04-01", "2022-10-01"))
 )
 
 add_wave <- function(df, wave_df) {
@@ -357,7 +572,10 @@ library(patchwork)
 
 combined_data <- bind_rows(cases_with_wave, deaths_with_wave)
 
-ggplot(combined_data, aes(x = date, y = value, color = wave)) +
+combined_data_filtered <- combined_data |>
+  filter(!is.na(wave))
+
+ggplot(combined_data_filtered, aes(x = date, y = value, color = wave)) +
   geom_line(alpha = 0.7, size = 1) +
   scale_color_brewer(palette = "Set1") +
   labs(
@@ -367,7 +585,11 @@ ggplot(combined_data, aes(x = date, y = value, color = wave)) +
     color = "Wave"
   ) +
   facet_wrap(~type, scales = "free_y") +
-  theme_minimal()
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    strip.text = element_text(size = 12, face = "bold")
+  )
 
 
 
