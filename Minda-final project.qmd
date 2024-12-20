@@ -344,7 +344,7 @@ deaths_with_wave <- deaths_with_wave %>%
 
 library(patchwork)
 
-
+combined_data <- bind_rows(cases_with_wave, deaths_with_wave)
 
 ggplot(combined_data, aes(x = date, y = value, color = wave)) +
   geom_line(alpha = 0.7, size = 1) +
