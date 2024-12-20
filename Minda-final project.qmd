@@ -492,7 +492,7 @@ ggplot(top_and_bottom_5_avg_rank, aes(x = reorder_within(state_name, avg_death_r
     name = "Category"
   ) +
   labs(
-    title = "Top and Bottom 5 States by Average Death Rate During Each Wave",
+    title = "Best and Worst 5 States by Average Death Rate During Each Wave",
     x = "State",
     y = "Average Death Rate (per 100,000)"
   ) +
