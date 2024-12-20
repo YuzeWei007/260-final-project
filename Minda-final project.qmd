@@ -354,7 +354,6 @@ for (i in regions2) {
 
 Supplementary plots for average death rate for each state
 ```{r}
-# Ensure clean data and define wave periods
 deaths_table <- deaths |> 
   mutate(date = as.Date(date)) |> 
   mutate(deaths_per_100k = ifelse(deaths_per_100k < 0, 0, deaths_per_100k)) |> 
@@ -370,57 +369,40 @@ deaths_table <- deaths |>
     )
   )
 
-# Filter out rows without assigned wave periods
 deaths_table <- deaths_table |> filter(!is.na(wave))
 
-# Summarize performance by wave and state
 state_wave_summary <- deaths_table |> 
   group_by(state_name, wave) |> 
   summarise(
-    peak_death_rate = max(deaths_per_100k, na.rm = TRUE),  # Peak death rate
+    peak_death_rate = max(deaths_per_100k, na.rm = TRUE),  
     avg_death_rate = mean(deaths_per_100k, na.rm = TRUE),  # Average death rate
-    total_deaths = sum(deaths, na.rm = TRUE),              # Total deaths
+    total_deaths = sum(deaths, na.rm = TRUE),          
     .groups = "drop"
   )
 
-# Rank states by performance within each wave
+
 state_wave_summary <- state_wave_summary |> 
   group_by(wave) |> 
   mutate(
-    rank_peak = rank(-peak_death_rate),  # Rank by peak death rate (descending)
-    rank_avg = rank(-avg_death_rate),   # Rank by average death rate (descending)
-    rank_total = rank(-total_deaths)    # Rank by total deaths (descending)
+    rank_peak = rank(-peak_death_rate),  
+    rank_avg = rank(-avg_death_rate),  
+    rank_total = rank(-total_deaths)  
   ) |> 
   ungroup()
 
 # Print summary table
 print(state_wave_summary)
 
-#Top 5 states by peak death rate for each wave
 top_states_peak <- state_wave_summary |> 
   group_by(wave) |> 
   slice_min(rank_peak, n = 5) |> 
   ungroup()
 
-ggplot(top_states_peak, aes(x = reorder(state_name, -peak_death_rate), y = peak_death_rate, fill = wave)) +
-  geom_col() +
-  facet_wrap(~wave, scales = "free") +
-  labs(
-    title = "Top 5 States by Peak Death Rate During Each Wave",
-    x = "State",
-    y = "Peak Death Rate (per 100,000)"
-  ) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-
-# Filter to include only the top 5 states by average death rate for each wave
 top_5_avg_rank <- state_wave_summary |> 
   group_by(wave) |> 
   slice_min(order_by = rank_avg, n = 5) |> 
   ungroup()
 
-# Plot top 5 states by average death rate for each wave
 ggplot(top_5_avg_rank, aes(x = reorder(state_name, rank_avg), y = avg_death_rate, fill = wave)) +
   geom_col() +
   facet_wrap(~wave, scales = "free") +
@@ -459,8 +441,8 @@ ggplot(bottom_5_avg_rank, aes(x = reorder(state_name, avg_death_rate), y = avg_d
 
 ```
 
-Main Table
-```{r}
+Main Table - do not need to put in the report
+```
 top_and_bottom_5_table <- state_wave_summary |> 
   group_by(wave) |> 
   slice_min(order_by = rank_avg, n = 5) |>  # Top 5 states (highest average death rate)
@@ -478,23 +460,23 @@ top_and_bottom_5_table <- state_wave_summary |>
 print(top_and_bottom_5_table)
 
 ```
+
 ```{r}
-top_and_bottom_5_table <- state_wave_summary |> 
+top_and_bottom_5_avg_rank <- state_wave_summary |> 
   group_by(wave) |> 
-  slice_min(order_by = rank_avg, n = 2) |>  # Top 5 states (highest average death rate)
-  mutate(category = "Top 5 (Highest)") |>  # Add category for top 5
+  slice_min(order_by = rank_avg, n = 5) |>  # States with the smallest rank_avg are "top" (lowest rank number)
+  mutate(rank_category = "Worst 5 (Highest)") |> 
   bind_rows(
     state_wave_summary |> 
       group_by(wave) |> 
-      slice_max(order_by = rank_avg, n = 2) |>  # Lowest 5 states (lowest average death rate)
-      mutate(category = "Bottom 5 (Lowest)")  # Add category for bottom 5
+      slice_max(order_by = rank_avg, n = 5) |>  # States with the largest rank_avg are "bottom"
+      mutate(rank_category = "Best 5 (Lowest)")
   ) |> 
   ungroup() |> 
-  arrange(wave, category, rank_avg)  # Sort by wave, category, and rank
-
-# Print the table
-View(top_and_bottom_5_table)
+  arrange(wave, rank_category, rank_avg)
 ```
+
+
 
 ```{r}
 library(tidytext)
@@ -506,7 +488,7 @@ ggplot(top_and_bottom_5_avg_rank, aes(x = reorder_within(state_name, avg_death_r
   facet_wrap(~wave, scales = "free") +
   scale_x_reordered() +
   scale_fill_manual(
-    values = c("Top 5 (Highest)" = "#FF69B4", "Bottom 5 (Lowest)" = "blue"),
+    values = c("Worst 5 (Highest)" = "#FF69B4", "Best 5 (Lowest)" = "blue"),
     name = "Category"
   ) +
   labs(
