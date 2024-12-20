@@ -188,4 +188,48 @@ print(anomalies)
 
 
 ```
+Question2
 
+```{r}
+
+
+library(ggplot2)
+library(dplyr)
+
+deaths <- deaths |> mutate(date = as.Date(date))
+
+deaths <- deaths |> mutate(deaths_per_100k = ifelse(deaths_per_100k < 0, 0, deaths_per_100k))
+
+deaths <- deaths |>
+  mutate(
+    major_region = case_when(
+      region_name %in% c("New England", "Mid-Atlantic", "NY & NJ & PR & VI") ~ "Northeast",
+      region_name %in% c("Southeast", "South Central") ~ "South",
+      region_name %in% c("Pacific", "Pacific Northwest", "Mountain States") ~ "West",
+      region_name %in% c("Midwest", "Central Plains") ~ "Midwest",
+      TRUE ~ "Other"
+    )
+  )
+
+regions <- c("Northeast", "South", "West", "Midwest")
+
+for (i in regions) {
+  region_data <- deaths |> filter(major_region == i)
+  
+  p <- ggplot(region_data, aes(x = date, y = deaths_per_100k, color = state_name)) +
+    geom_line(size = 1, alpha = 0.8) +
+    labs(
+      title = paste("Deaths per 100,000 in", region, "(2020-2024)"),
+      x = "Date",
+      y = "Deaths per 100,000",
+      color = "State"
+    ) +
+    theme_minimal() +
+    scale_x_date(date_breaks = "6 months", date_labels = "%b %Y")
+  
+  print(p)
+}
+
+
+
+```
