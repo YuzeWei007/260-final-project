@@ -300,3 +300,110 @@ for (i in regions) {
 
 
 ```
+
+
+Question3
+
+```{r}
+library(dplyr)
+library(lubridate)
+
+wave_definitions <- tibble(
+  wave = c("Wave1", "Wave2", "Wave3", "Wave4", "Wave5", "Wave6"),
+  start_date = as.Date(c("2020-03-01","2020-10-01","2021-07-01","2021-12-01","2022-11-01","2023-10-01")),
+  end_date   = as.Date(c("2020-06-01","2021-03-01","2021-10-01","2022-03-01","2023-03-01","2024-12-01"))
+)
+
+add_wave <- function(df, wave_df) {
+  df %>%
+    rowwise() %>%
+    mutate(wave = {
+      inds <- which(date >= wave_df$start_date & date <= wave_df$end_date)
+      if (length(inds) == 1) {
+        wave_df$wave[inds]
+      } else {
+        NA_character_  
+      }
+    }) %>%
+    ungroup()
+}
+
+cases_with_wave <- add_wave(cases, wave_definitions)
+deaths_with_wave <- add_wave(deaths, wave_definitions)
+
+
+cases_with_wave <- cases_with_wave %>%
+  select(date, wave, cases_per_100k) %>%
+  rename(value = cases_per_100k) %>%
+  mutate(type = "Cases")
+
+deaths_with_wave <- deaths_with_wave %>%
+  select(date, wave, deaths_per_100k) %>%
+  rename(value = deaths_per_100k) %>%
+  mutate(type = "Deaths")
+
+library(patchwork)
+
+
+
+ggplot(combined_data, aes(x = date, y = value, color = wave)) +
+  geom_line(alpha = 0.7, size = 1) +
+  scale_color_brewer(palette = "Set1") +
+  labs(
+    title = "COVID-19 Cases and Mortality with Waves",
+    x = "Date",
+    y = "Count",
+    color = "Wave"
+  ) +
+  facet_wrap(~type, scales = "free_y") +
+  theme_minimal()
+
+
+
+
+```
+
+
+Question4
+
+population processing
+```{r}
+
+data_2010_2020 <- read_excel(file_path, sheet = "nst-est2020int-pop", skip = 3)
+
+colnames(data) <- c("Geographic_Area", "Base_2010", "2010", "2011", "2012", "2013", "2024")
+
+data <- data |>
+  filter(!is.na(Geographic_Area)) |>
+  filter(str_starts(Geographic_Area, "\\.")) |> 
+  mutate(Geographic_Area = str_replace(Geographic_Area, "^\\.", "")) |>
+  select(-Base_2020) # Drop the Base_2020 column
+
+population <- data |>
+  pivot_longer(cols = starts_with("20"), 
+               names_to = "year", 
+               values_to = "population") |>
+  rename(state_name = Geographic_Area) |>
+                mutate(state = case_when(
+                state_name == "District of Columbia" ~ "DC",
+                state_name == "Puerto Rico" ~ "PR",
+                TRUE ~ state.abb[match(state_name, state.name)]  # Use state.abb for other states
+              ))
+
+
+population_filtered <- population |>
+  mutate(state_name = reorder(state_name, population)) |>
+  ggplot(aes(x = population, y = state_name, fill = year)) +
+  geom_col() +
+  coord_flip() +
+  facet_wrap(~year, scales = "free_y") +
+  labs(title = "State Populations",
+       x = "Population",
+       y = "State") +
+  theme_minimal()  +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+print(population_filtered)
+
+
+```
+
