@@ -50,13 +50,31 @@ Data Q45
 
 Q1
 
+Divide the pandemic period, January 2020 to December 2024 into *waves*. Justify your choice with data visualization
+
 ```{r}
 library(magick)
-img <- image_read("Graph1.png")
+img <- image_read("graph1.png")
 print(img)
 ```
 
 The COVID-19 case and mortality trends from 2020 to 2024 reveal six distinct waves, each varying in intensity and duration. Case trends show an initial gradual increase during Wave 1, followed by a sharp rise in Wave 2, peaking significantly in Wave 3, and then tapering into moderate peaks during Waves 4, 5, and 6. Mortality trends closely align with these waves, with the highest mortality observed in Wave 3, a noticeable decline in Wave 4, and relatively lower but steady levels in Waves 5 and 6. The provided charts highlight the temporal dynamics of the pandemic, illustrating the fluctuation of cases and mortality over time.
+
+Q2
+
+For each period compute the deaths rates by state. Describe which states did better or worse during the different periods.
+
+```{r}
+library(magick)
+img <- image_read("graph2.png")
+print(img)
+```
+
+During Wave 1, Northeastern states such as New Jersey, Connecticut, and Massachusetts had the highest death rates, while states like Hawaii, Alaska, and Montana, with smaller populations and lower densities, experienced the lowest rates. In Wave 2, Southern states including Mississippi, Arizona, and Louisiana performed the worst, whereas states like Vermont, Maine, and Wyoming fared better with the lowest death rates. Wave 3 saw high death rates in Midwest and Southern states such as South Dakota, Arizona, and Alabama, while coastal states like Hawaii, Vermont, and Washington reported the lowest rates. During Wave 4, states like Florida, Mississippi, and Oklahoma struggled the most, but Northeastern regions such as New York, New Hampshire, and the District of Columbia continued to maintain low death rates. In Wave 5, states in the Midwest and Mountain West, including Tennessee, West Virginia, and Michigan, had the highest death rates, while Massachusetts, Puerto Rico, and Hawaii were among the lowest. Finally, Wave 6 highlighted states such as New Mexico, Kentucky, and West Virginia with the worst outcomes, while states like New York, Hawaii, and Rhode Island continued to perform well with the lowest death rates.
+
+Q3
+
+Describe if COVID-19 became less or more virulent across the different periods.
 
 #### 
 
