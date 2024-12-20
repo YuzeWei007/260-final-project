@@ -42,6 +42,13 @@ Data Q45
 
 5.  Intercensal Population Estimates (2010-2020): Data source: U.S. Census Bureau. Access URL: https://www.census.gov/data/tables/time-series/demo/popest/intercensal-2010-2020-national.html File used: nst-est2020int-pop.xlsx. Description: This dataset contains intercensal population estimates for the United States, bridging the gaps between decennial censuses (2010 and 2020). It offers annual national-level population figures for demographic analyses, allowing researchers to adjust for population changes over the decade. Both datasets are integral for demographic and mortality analysis, aiding in understanding trends over time and their implications on public health and population dynamics.
 
+
+Q1
+We approached cleaning and analyzing the data systematically to ensure accuracy and usability. First, we loaded the population data from the provided Excel file and cleaned it by renaming columns, filtering out irrelevant rows, and removing unnecessary columns such as "Base_2020." We standardized the geographic area names and mapped state names to their respective abbreviations using conditional logic. Next, we reshaped the dataset from a wide to a long format to facilitate time-series analysis and integrated regional data from an external JSON source, mapping each state to its corresponding region. To analyze COVID-19 cases and deaths, we fetched data from an API, selected relevant columns, renamed them for clarity, and converted data types for numerical calculations and date handling. Anomalies such as negative values were identified and managed. We joined the cleaned population data with the case and mortality data to calculate metrics like cases and deaths per 100,000 people, enabling a comparative analysis across states and over time. We defined specific time periods, termed "waves," corresponding to COVID-19 surges and analyzed the peaks in cases and deaths for each wave. Using visualizations, we plotted trends in cases and deaths, with shaded regions indicating distinct waves. By applying color coding and facet wrapping, we made the trends clearer, while combined plots provided a cohesive view of cases and mortality dynamics. This approach ensured that we effectively cleaned the data, integrated multiple sources, and presented insights through comprehensive visualizations.
+
+Q2
+
+
 ## **Results (500-600 words)**
 
 -   **Purpose**: The results section presents the main findings of your analysis without interpretation. Organize the data logically to highlight key insights, using tables, figures, and charts to illustrate trends and comparisons.
@@ -76,6 +83,8 @@ Q3
 
 Describe if COVID-19 became less or more virulent across the different periods.
 
+
+
 #### 
 
 ## **Discussion (600-700 words)**
@@ -83,6 +92,12 @@ Describe if COVID-19 became less or more virulent across the different periods.
 -   **Purpose**: In the discussion, interpret the significance of your findings, explore potential implications, and relate the results back to your initial research questions or hypotheses. This section allows you to discuss any patterns, unexpected findings, or limitations and suggest possible future research.
 
 -   **Guidelines**: Analyze your results in the context of your research question, linking them back to the background information from the introduction. Consider what your findings reveal, any limitations they may have, and how they might impact future work or policy. End with a brief conclusion summarizing your main insights.
+
+Q1
+
+Divide the pandemic period, January 2020 to December 2024 into *waves*. Justify your choice with data visualization
+
+
 
 Q4 Estimate excess mortality for each week for each state. Do COVID-19 deaths explain the excess mortality?
 
