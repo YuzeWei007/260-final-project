@@ -309,9 +309,9 @@ library(dplyr)
 library(lubridate)
 
 wave_definitions <- tibble(
-  wave = c("Wave1", "Wave2", "Wave3", "Wave4", "Wave5", "Wave6"),
-  start_date = as.Date(c("2020-03-01","2020-10-01","2021-07-01","2021-12-01","2022-11-01","2023-10-01")),
-  end_date   = as.Date(c("2020-06-01","2021-03-01","2021-10-01","2022-03-01","2023-03-01","2024-12-01"))
+  wave = c("Wave1", "Wave2", "Wave3", "Wave4", "Wave5"),
+  start_date = as.Date(c("2020-03-15", "2020-07-01", "2020-12-01", "2021-08-15", "2021-12-01")),
+  end_date = as.Date(c("2020-06-01", "2020-10-01", "2021-04-30", "2021-10-30", "2022-04-01"))
 )
 
 add_wave <- function(df, wave_df) {
@@ -346,7 +346,12 @@ library(patchwork)
 
 combined_data <- bind_rows(cases_with_wave, deaths_with_wave)
 
-ggplot(combined_data, aes(x = date, y = value, color = wave)) +
+# Remove rows with NA in the wave column before plotting
+combined_data_filtered <- combined_data |>
+  filter(!is.na(wave))
+
+# Create the plot
+ggplot(combined_data_filtered, aes(x = date, y = value, color = wave)) +
   geom_line(alpha = 0.7, size = 1) +
   scale_color_brewer(palette = "Set1") +
   labs(
@@ -356,10 +361,11 @@ ggplot(combined_data, aes(x = date, y = value, color = wave)) +
     color = "Wave"
   ) +
   facet_wrap(~type, scales = "free_y") +
-  theme_minimal()
-
-
-
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    strip.text = element_text(size = 12, face = "bold")
+  )
 
 ```
 
