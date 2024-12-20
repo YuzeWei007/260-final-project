@@ -42,7 +42,7 @@ population <- data |>
               ))
 
 
-population_filtered <- data_long |>
+population_filtered <- population |>
   mutate(state_name = reorder(state_name, population)) |>
   ggplot(aes(x = population, y = state_name, fill = year)) +
   geom_col() +
@@ -149,7 +149,7 @@ ggplot(cases, aes(x = date, y = cases_per_100k, color = state_name)) +
   )
 
 ```
-Wave
+Wave - incorporate 2024 data!
 ```{r}
 
 
@@ -164,18 +164,18 @@ deaths <- deaths |> mutate(date = as.Date(date))
 cases_plot <- ggplot(cases, aes(x = date, y = cases)) +
   geom_line(color = "blue", size = 1) +
   labs(
-    title = "Pandemic Cases Trend (2020-2024)",
+    title = "COVID-19 Cases Trend (2020-2024)",
     x = "Date",
-    y = "Total Cases"
+    y = "Total COVID-19 Cases"
   ) +
   theme_minimal()
 
 deaths_plot <- ggplot(deaths, aes(x = date, y = deaths)) +
   geom_line(color = "red", size = 1) +
   labs(
-    title = "Pandemic Deaths Trend (2020-2024)",
+    title = "COVID-19 Mortality Trend (2020-2024)",
     x = "Date",
-    y = "Total Deaths"
+    y = "Total COVID-19 Mortality"
   ) +
   theme_minimal()
 
