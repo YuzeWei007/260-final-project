@@ -578,6 +578,47 @@ ggplot(combined_data_filtered, aes(x = date, y = value, color = wave)) +
 
 ```
 
+Compute fatality ratio (deaths per 100 cases)
+
+```{r}
+# (deaths per 100 cases)
+fatality_data <- combined_data_filtered |>
+  group_by(wave, type) |>
+  summarize(total = sum(value, na.rm = TRUE), .groups = "drop")
+
+fatality_ratio_by_wave <- fatality_data |>
+  pivot_wider(names_from = type, values_from = total) |>
+  mutate(
+    fatality_ratio = (Deaths / Cases) * 100  # Calculate fatality ratio as percentage
+  ) |>
+  select(wave, fatality_ratio) |> 
+  arrange(wave) 
+
+# Print the resulting table
+print(fatality_ratio_by_wave)
+
+ggplot(fatality_ratio_by_wave, aes(x = wave, y = fatality_ratio, group = 1)) +
+  geom_line(color = "#FF5733", size = 1.2) +
+  geom_point(color = "#FF5733", size = 3) +
+  geom_text(aes(label = paste0(round(fatality_ratio, 2), "%")), 
+            vjust = -1.2, color = "black", size = 4) +  
+  scale_y_continuous(expand = expansion(mult = c(0.05, 0.15))) +  
+  labs(
+    title = "Fatality Ratio (Deaths per 100 Cases) by Wave",
+    x = "Wave",
+    y = "Fatality Ratio (%)"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 14),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    axis.title.x = element_text(size = 12),
+    axis.title.y = element_text(size = 12)
+  )
+```
+
+
 
 Question4
 
