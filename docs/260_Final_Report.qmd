@@ -1,0 +1,25 @@
+---
+title: "260_Final_Report"
+format: pdf
+editor: visual
+---
+
+## Abstract
+
+Quarto enables you to weave together content and executable code into a finished document.
+
+## Introduction
+
+The COVID-19 pandemic has profoundly influenced global health, economies, and societal structures. From January 2020 to December 2024, the United States experienced multiple waves of COVID-19 infections and deaths. These waves provide a unique opportunity to analyze the evolution of COVID-19's impact over time. By examining mortality data across states and time periods, this study aims to investigate patterns and trends to better understand the trajectory of this pandemic.
+
+Recent studies have investigated and highlighted the importance of analyzing mortality trends to better understand the pandemic’s impact. For instance, Chan et al. (2021) quantified the pandemic’s effects on excess mortality and life expectancy (Chan et al., 2021). Moreover, Woolf et al. (2021) analyzed excess deaths in the United States and showed increased mortality from non-COVID-19 causes, such as heart disease and Alzheimer's disease during COVID-19 waves, demonstrating the pandemic's indirect effects on public health outcomes (Woolf et al., 2021). While these studies have provided valuable insights, there are limitations that our study intend to address. Most prior analyses focus on aggregated data or specific time periods and pay little attention to state-level variations and temporal shifts of the pandemic’s impact. Our study tries to offer a much comprehensive and longitudinal analysis that encompasses the entire pandemic period in both national and state level.
+
+In this study, the analysis focuses on several key aspects of the pandemic. First, we divide the timeline into distinct waves based on data visualizations of infection and mortality trends. This section allows for understanding the virus’s evolution and impact over time. Second, we compute death rates for each state during these periods, identifying states that performed better or worse in terms of mortality outcomes. These findings could potentially identify the effectiveness of various public health strategies and problems within state-level healthcare systems. Third, we explore whether COVID-19 became more or less virulent across different periods by investigating changes in mortality rates and excess deaths over time. Furthermore, we extend the scope to estimate weekly excess mortality for each state and evaluate whether COVID-19 deaths explain these excesses.
+
+By investigating those key aspects of the pandemic, this study seeks to provide a comprehensive understanding of the dynamics of COVID-19 mortality in the United States, potentially contributing to future pandemic analysis and serving as resources for public health officials to study healthcare systems and improve response strategies and allocation of resources across the nation.
+
+## References
+
+Woolf, S. H., et al. (2021). "Excess Deaths from COVID-19 and Other Causes in the US, March 1, 2020, to January 2, 2021." JAMA. Retrieved from jamanetwork.com. https://jamanetwork.com/journals/jama/fullarticle/2778361
+
+Chan, E. Y. S., et al. (2021). "Impact of COVID-19 on Excess Mortality, Life Expectancy, and Years of Life Lost in the United States." PLOS ONE. Retrieved from journals.plos.org. https://pubmed.ncbi.nlm.nih.gov/34469474/
