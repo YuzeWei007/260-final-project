@@ -149,10 +149,8 @@ ggplot(cases, aes(x = date, y = cases_per_100k, color = state_name)) +
   )
 
 ```
-Wave - incorporate 2024 data!
+Wave
 ```{r}
-
-
 library(ggplot2)
 library(dplyr)
 library(patchwork)
@@ -161,6 +159,32 @@ deaths <- death |> mutate(deaths = ifelse(deaths < 0, NA, deaths))
 cases <- cases |> mutate(date = as.Date(date))
 deaths <- deaths |> mutate(date = as.Date(date))
 
+
+# Identity wave period
+results <- deaths |> 
+  mutate(period = case_when(
+    date >= as.Date("2020-03-15") & date <= as.Date("2020-06-01") ~ "Wave1",
+    date >= as.Date("2020-07-01") & date <= as.Date("2020-10-01") ~ "Wave2",
+    date >= as.Date("2020-12-01") & date <= as.Date("2021-04-30") ~ "Wave3",
+    date >= as.Date("2021-08-15") & date <= as.Date("2021-10-30") ~ "Wave4",
+    date >= as.Date("2021-12-01") & date <= as.Date("2022-04-01") ~ "Wave5"
+  )) |> 
+  filter(!is.na(period)) |> 
+  group_by(period) |> 
+  summarise(
+    peak_value = max(deaths, na.rm = TRUE),
+    peak_date = date[which.max(deaths)]
+  )
+
+print(results)
+
+```
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(patchwork)
+
 cases_plot <- ggplot(cases, aes(x = date, y = cases)) +
   geom_line(color = "blue", size = 1) +
   labs(
@@ -168,26 +192,69 @@ cases_plot <- ggplot(cases, aes(x = date, y = cases)) +
     x = "Date",
     y = "Total COVID-19 Cases"
   ) +
-  theme_minimal()
+  theme_minimal() + 
+  theme(plot.title = element_text(hjust = 0.5))
 
 deaths_plot <- ggplot(deaths, aes(x = date, y = deaths)) +
-  geom_line(color = "red", size = 1) +
+  geom_line(color = "#FF69B4", size = 1) +
   labs(
     title = "COVID-19 Mortality Trend (2020-2024)",
     x = "Date",
     y = "Total COVID-19 Mortality"
   ) +
-  theme_minimal()
+  theme_minimal() + 
+  theme(plot.title = element_text(hjust = 0.5))
+
+# Define time periods for waves
+time_periods <- data.frame(
+  period = c("Wave1", "Wave2", "Wave3", "Wave4", "Wave5"),
+  start_date = as.Date(c("2020-03-15", "2020-07-01", "2020-12-01", "2021-08-15", "2021-12-01")),
+  end_date = as.Date(c("2020-06-01", "2020-10-01", "2021-04-30", "2021-10-30", "2022-04-01"))
+)
+
+# Add dashed rectangules
+deaths_plot <- deaths_plot +
+  geom_rect(
+    data = time_periods,
+    aes(
+      xmin = start_date,
+      xmax = end_date,
+      ymin = 0,
+      ymax = 4000,
+      color = period
+    ),
+    fill = NA,
+    size = 0.9,
+    inherit.aes = FALSE
+  ) +
+  scale_color_manual(
+    values = c(
+      "Wave1" = "#87CEEB",
+      "Wave2" = "#ff7f0e", 
+      "Wave3" = "#2ca02c",
+      "Wave4" = "#17becf",
+      "Wave5" = "#FFD700"
+    ),
+    name = "Time Periods"
+  ) +
+  theme(
+    legend.title = element_text(size = 12, face = "plain"),  
+    legend.text = element_text(size = 10),                
+    legend.key.size = unit(0.8, "cm"),           
+    legend.spacing.y = unit(0.3, "cm"),                 
+  )
 
 combined_plot <- cases_plot / deaths_plot
-
 print(combined_plot)
 
-anomalies <- deaths |> filter(deaths < 0)
-print(anomalies)
+anomalies <- deaths %>% filter(deaths < 0)
+# print(anomalies)
 
 
 ```
+
+
+
 Question2
 
 ```{r}
@@ -219,7 +286,7 @@ for (i in regions) {
   p <- ggplot(region_data, aes(x = date, y = deaths_per_100k, color = state_name)) +
     geom_line(size = 1, alpha = 0.8) +
     labs(
-      title = paste("Deaths per 100,000 in", region, "(2020-2024)"),
+      title = paste("Deaths per 100,000 in", i, "(2020-2024)"),
       x = "Date",
       y = "Deaths per 100,000",
       color = "State"

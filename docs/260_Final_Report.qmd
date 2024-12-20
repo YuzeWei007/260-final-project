@@ -18,6 +18,10 @@ In this study, the analysis focuses on several key aspects of the pandemic. Firs
 
 By investigating those key aspects of the pandemic, this study seeks to provide a comprehensive understanding of the dynamics of COVID-19 mortality in the United States, potentially contributing to future pandemic analysis and serving as resources for public health officials to study healthcare systems and improve response strategies and allocation of resources across the nation.
 
+## Results
+
+
+
 ## References
 
 Woolf, S. H., et al. (2021). "Excess Deaths from COVID-19 and Other Causes in the US, March 1, 2020, to January 2, 2021." JAMA. Retrieved from jamanetwork.com. https://jamanetwork.com/journals/jama/fullarticle/2778361
