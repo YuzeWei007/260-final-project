@@ -127,10 +127,19 @@ cases <- cases_clean |>
   mutate(cases_per_100k = (cases / population) * 100000) |> 
   filter(!is.na(cases_per_100k))   
 
+cases <- cases |>
+  mutate(date_year = lubridate::year(as.Date(date))) |> 
+  filter(date_year == year) 
+
 death <- death_clean |>
   left_join(population, by = "state") |>            
   mutate(deaths_per_100k = (deaths / population) * 100000) |> 
   filter(!is.na(deaths_per_100k)) 
+
+death <- death |>
+  mutate(date_year = lubridate::year(as.Date(date))) |> 
+  filter(date_year == year) 
+
 
 ggplot(cases, aes(x = date, y = cases_per_100k, color = state_name)) +
   geom_line() +                                           
@@ -278,9 +287,9 @@ deaths <- deaths |>
     )
   )
 
-regions <- c("Northeast", "South", "West", "Midwest")
+regions2 <- c("Northeast", "South", "West", "Midwest")
 
-for (i in regions) {
+for (i in regions2) {
   region_data <- deaths |> filter(major_region == i)
   
   p <- ggplot(region_data, aes(x = date, y = deaths_per_100k, color = state_name)) +
@@ -344,6 +353,8 @@ deaths_with_wave <- deaths_with_wave %>%
 
 library(patchwork)
 
+
+
 combined_data <- bind_rows(cases_with_wave, deaths_with_wave)
 
 # Remove rows with NA in the wave column before plotting
@@ -375,17 +386,17 @@ Question4
 population processing
 ```{r}
 
-data_2010_2020 <- read_excel(file_path, sheet = "nst-est2020int-pop", skip = 3)
+data_2010_2020 <- read_excel("nst-est2020int-pop.xlsx", skip = 3)
 
-colnames(data) <- c("Geographic_Area", "Base_2010", "2010", "2011", "2012", "2013", "2024")
+colnames(data_2010_2020 ) <- c("Geographic_Area", "Base_2010",  "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
 
-data <- data |>
+data_2010_2020 <- data_2010_2020  |>
   filter(!is.na(Geographic_Area)) |>
   filter(str_starts(Geographic_Area, "\\.")) |> 
   mutate(Geographic_Area = str_replace(Geographic_Area, "^\\.", "")) |>
-  select(-Base_2020) # Drop the Base_2020 column
+  select(-Base_2010) 
 
-population <- data |>
+population_2010 <- data_2010_2020  |>
   pivot_longer(cols = starts_with("20"), 
                names_to = "year", 
                values_to = "population") |>
@@ -397,7 +408,7 @@ population <- data |>
               ))
 
 
-population_filtered <- population |>
+population_2010_filtered <- population_2010 |>
   mutate(state_name = reorder(state_name, population)) |>
   ggplot(aes(x = population, y = state_name, fill = year)) +
   geom_col() +
@@ -408,8 +419,40 @@ population_filtered <- population |>
        y = "State") +
   theme_minimal()  +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
-print(population_filtered)
+print(population_2010_filtered)
 
 
 ```
 
+
+
+```{r}
+
+data <- read_csv("Weekly_Counts_of_Deaths_by_Jurisdiction_and_Age_20241220.csv")
+
+extracted_data <- data %>%
+  select(state = `State Abbreviation`, date = `Week Ending Date`, deaths = `Number of Deaths`)
+
+extracted_data$date <- as.Date(extracted_data$date, format = "%m/%d/%Y")
+
+population_2010 <- population_2010 |>
+  left_join(regions, by = "state_name")
+
+
+death_2015 <- extracted_data |>
+  left_join(population_2010, by = "state") |>            
+  mutate(deaths_per_100k = (deaths / population) * 100000) |> 
+  filter(!is.na(deaths_per_100k)) 
+
+
+death_2015 <- death_2015 |>
+  mutate(date_year = lubridate::year(as.Date(date))) |> 
+  filter(date_year == year) 
+
+
+
+print(death_2015)
+
+
+
+```
