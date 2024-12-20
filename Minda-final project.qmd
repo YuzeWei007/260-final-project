@@ -672,6 +672,11 @@ extracted_data <- data %>%
 
 extracted_data$date <- as.Date(extracted_data$date, format = "%m/%d/%Y")
 
+extracted_data = extracted_data |>
+  group_by(state,date) |>
+  summarise(deaths = sum(deaths,na.rm=TRUE)) |>
+  ungroup()
+
 population_2010 <- population_2010 |>
   left_join(regions, by = "state_name")
 
@@ -738,7 +743,7 @@ print(predicted_data)
 extracted_data_2020 = extracted_data  |> 
   rename(real_death=deaths) |> 
   mutate(week = isoweek(date), year = year(date)) |> 
-  filter(year>2019)
+  filter(year>2019) |> select(-date)
 
 deaths = deaths |>
   left_join(extracted_data_2020, by = c("week","year","state")) |>
@@ -803,7 +808,7 @@ library(dplyr)
 for (i in regions2) {
   region_data <- merged_death_2020_after_prediction |> filter(major_region == i)
   
-  p <- ggplot(region_data, aes(x = date.x, y = excess_mortality, color = state_name)) +
+  p <- ggplot(region_data, aes(x = date, y = excess_mortality, color = state_name)) +
     geom_line(size = 1, alpha = 0.8) +
     labs(
       title = paste("excess_mortality per 100,000 in", i, "(2020-2024)"),
