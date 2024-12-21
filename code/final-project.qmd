@@ -1,6 +1,6 @@
 ---
-title: Final_Project
-date: 2024-10-04
+title: Final Project
+date: 2024-12-20
 format: 
   pdf:
     fig-width: 9 
