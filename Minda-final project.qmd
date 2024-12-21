@@ -1,12 +1,24 @@
 ---
 title: Final_Project
 date: 2024-10-04
-format: pdf
+format: 
+  pdf:
+    fig-width: 9 
+    fig-height: 7   
+  
+execute:
+  echo: false
+  warning: false
+  
 ---
 
 
-Population Data Processing
+
 ```{r}
+#| echo: false
+#| include: false
+
+# Population Data Processing
 # Load required libraries
 library(readxl)
 library(tidyr)
@@ -18,7 +30,7 @@ library(lubridate)
 library(jsonlite)
 
 
-file_path <- "NST-EST2024-POP.xlsx"
+file_path <- "raw-data/NST-EST2024-POP.xlsx"
 
 data <- read_excel(file_path, sheet = "NST-EST2024-POP", skip = 3)
 
@@ -41,6 +53,8 @@ population <- data |>
                 TRUE ~ state.abb[match(state_name, state.name)]  # Use state.abb for other states
               ))
 
+saveRDS(population, file = "data/clean_population_2020_2024.rds")
+
 
 population_filtered <- population |>
   mutate(state_name = reorder(state_name, population)) |>
@@ -58,10 +72,13 @@ print(population_filtered)
 
 ```
 
-Population Processing 
+
 
 ```{r}
+#| echo: false
+#| include: false
 
+# Population Processing 
 url <- "https://github.com/datasciencelabs/2024/raw/refs/heads/main/data/regions.json"
 regions <- fromJSON(url, simplifyDataFrame = FALSE)
 regions <- map_df(regions, function(x) 
@@ -79,9 +96,13 @@ print(population)
 ```
 
 
-case processing
-```{r}
 
+```{r}
+#| echo: false
+#| include: false
+
+
+# case processing
 api <- "https://data.cdc.gov/resource/pwn4-m3yp.json"
 response <- request(api) |> 
   req_url_query(`$limit` = 10000000000) |>
@@ -119,9 +140,13 @@ print(death_clean)
 ```
 
 
-Join
-```{r}
 
+```{r}
+#| echo: false
+#| include: false
+
+
+# Join
 cases <- cases_clean |>
   left_join(population, by = "state") |>            
   mutate(cases_per_100k = (cases / population) * 100000) |> 
@@ -158,8 +183,12 @@ ggplot(cases, aes(x = date, y = cases_per_100k, color = state_name)) +
   )
 
 ```
-Wave
+
 ```{r}
+#| echo: false
+#| include: false
+
+# Wave
 library(ggplot2)
 library(dplyr)
 library(patchwork)
@@ -197,6 +226,7 @@ print(results)
 ```
 
 ```{r}
+#| echo: false
 library(ggplot2)
 library(dplyr)
 library(patchwork)
@@ -304,12 +334,15 @@ anomalies <- deaths %>% filter(deaths < 0)
 
 
 
-Question2
 
-Supplementary plots
 
 ```{r}
+#| include: false
 
+
+#Question2
+
+#Supplementary plots
 
 library(ggplot2)
 library(dplyr)
@@ -352,8 +385,11 @@ for (i in regions2) {
 
 ```
 
-Supplementary plots for average death rate for each state
+
 ```{r}
+#| include: false
+
+# Supplementary plots for average death rate for each state
 deaths_table <- deaths |> 
   mutate(date = as.Date(date)) |> 
   mutate(deaths_per_100k = ifelse(deaths_per_100k < 0, 0, deaths_per_100k)) |> 
@@ -417,7 +453,12 @@ ggplot(top_5_avg_rank, aes(x = reorder(state_name, rank_avg), y = avg_death_rate
     legend.position = "bottom"
   )
 ```
+
+
 ```{r}
+#| echo: false
+#| include: false
+
 # Filter to include only the bottom 5 states by average death rate for each wave
 bottom_5_avg_rank <- state_wave_summary |> 
   group_by(wave) |> 
@@ -441,8 +482,9 @@ ggplot(bottom_5_avg_rank, aes(x = reorder(state_name, avg_death_rate), y = avg_d
 
 ```
 
-Main Table - do not need to put in the report
-```
+
+```{r}
+#Main Table - do not need to put in the report
 top_and_bottom_5_table <- state_wave_summary |> 
   group_by(wave) |> 
   slice_min(order_by = rank_avg, n = 5) |>  # Top 5 states (highest average death rate)
@@ -456,12 +498,12 @@ top_and_bottom_5_table <- state_wave_summary |>
   ungroup() |> 
   arrange(wave, category, rank_avg)  # Sort by wave, category, and rank
 
-# Print the table
-print(top_and_bottom_5_table)
 
 ```
 
 ```{r}
+#| echo: false
+#| include: false
 top_and_bottom_5_avg_rank <- state_wave_summary |> 
   group_by(wave) |> 
   slice_min(order_by = rank_avg, n = 5) |>  # States with the smallest rank_avg are "top" (lowest rank number)
@@ -479,6 +521,8 @@ top_and_bottom_5_avg_rank <- state_wave_summary |>
 
 
 ```{r}
+#| echo: false
+
 library(tidytext)
 
 ggplot(top_and_bottom_5_avg_rank, aes(x = reorder_within(state_name, avg_death_rate, wave), 
@@ -508,11 +552,14 @@ ggplot(top_and_bottom_5_avg_rank, aes(x = reorder_within(state_name, avg_death_r
 ```
 
 
-Question3
+
 
 ```{r}
+#| include: false
 library(dplyr)
 library(lubridate)
+
+# Question3
 
 wave_definitions <- tibble(
   wave = c("Wave1", "Wave2", "Wave3", "Wave4", "Wave5", "Wave6"),
@@ -578,9 +625,13 @@ ggplot(combined_data_filtered, aes(x = date, y = value, color = wave)) +
 
 ```
 
-Compute fatality ratio (deaths per 100 cases)
+
 
 ```{r}
+
+#| echo: false
+
+# Compute fatality ratio (deaths per 100 cases)
 # (deaths per 100 cases)
 fatality_data <- combined_data_filtered |>
   group_by(wave, type) |>
@@ -596,6 +647,13 @@ fatality_ratio_by_wave <- fatality_data |>
 
 # Print the resulting table
 print(fatality_ratio_by_wave)
+
+```
+
+
+```{r}
+#| echo: false
+#| include: false
 
 ggplot(fatality_ratio_by_wave, aes(x = wave, y = fatality_ratio, group = 1)) +
   geom_line(color = "#FF5733", size = 1.2) +
@@ -620,12 +678,17 @@ ggplot(fatality_ratio_by_wave, aes(x = wave, y = fatality_ratio, group = 1)) +
 
 
 
-Question4
 
-population processing
 ```{r}
 
-data_2010_2020 <- read_excel("nst-est2020int-pop.xlsx", skip = 3)
+#| echo: false
+#| include: false
+
+# Question4
+
+# population processing
+
+data_2010_2020 <- read_excel("raw-data/nst-est2020int-pop.xlsx", skip = 3)
 
 colnames(data_2010_2020 ) <- c("Geographic_Area", "Base_2010",  "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
 
@@ -645,27 +708,19 @@ population_2010 <- data_2010_2020  |>
                 state_name == "Puerto Rico" ~ "PR",
                 TRUE ~ state.abb[match(state_name, state.name)]  # Use state.abb for other states
               ))
+saveRDS(population_2010, file = "data/clean_population_2010_2019.rds")
 
-
-population_2010_filtered <- population_2010 |>
-  mutate(state_name = reorder(state_name, population)) |>
-  ggplot(aes(x = population, y = state_name, fill = year)) +
-  geom_col() +
-  coord_flip() +
-  facet_wrap(~year, scales = "free_y") +
-  labs(title = "State Populations",
-       x = "Population",
-       y = "State") +
-  theme_minimal()  +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
-print(population_2010_filtered)
 
 
 ```
 
 ```{r}
 
-data <- read_csv("Weekly_Counts_of_Deaths_by_Jurisdiction_and_Age_20241220.csv")
+#| echo: false
+#| include: false
+#| warning: false
+
+data <- read_csv("raw-data/Weekly_Counts_of_Deaths_by_Jurisdiction_and_Age_20241220.csv")
 
 extracted_data <- data %>%
   select(state = `State Abbreviation`, date = `Week Ending Date`, deaths = `Number of Deaths`)
@@ -676,6 +731,8 @@ extracted_data = extracted_data |>
   group_by(state,date) |>
   summarise(deaths = sum(deaths,na.rm=TRUE)) |>
   ungroup()
+
+saveRDS(extracted_data, file = "data/clean_weekly_counts_of_deaths.rds")
 
 population_2010 <- population_2010 |>
   left_join(regions, by = "state_name")
@@ -693,7 +750,7 @@ death_2015 <- death_2015 |>
 
 
 
-print(death_2015)
+#print(death_2015)
 
 
 
@@ -701,8 +758,12 @@ print(death_2015)
 
 ```
 
-prediction
+
 ```{r}
+#| echo: false
+#| include: false
+
+# prediction
 
 library(lubridate)
 death_2015 <- death_2015 |>
@@ -773,9 +834,14 @@ ggplot(merged_death_2020_after_prediction, aes(x = week, y = excess_mortality, c
 
 ```
 
-confidence
+
 ```{r}
-correlation <- cor(merged_death_2020_after_prediction$excess_mortality, merged_death_2020_after_prediction$deaths_per_100k, method = "pearson")
+
+#| echo: false
+#|  warning: false
+
+# confidence
+#correlation <- cor(merged_death_2020_after_prediction$excess_mortality, merged_death_2020_after_prediction$deaths_per_100k, method = "pearson")
 
 
 
@@ -790,17 +856,22 @@ ggplot(merged_death_2020_after_prediction, aes(x = deaths_per_100k, y = excess_m
 model <- lm(excess_mortality ~ deaths_per_100k, data = merged_death_2020_after_prediction)
 
 
-summary(model)
-print(paste("Pearson correlation coefficient:", correlation))
+#summary(model)
+#print(paste("Pearson correlation coefficient:", correlation))
 
-coef(model)  
-confint(model)  
+#coef(model)  
+#confint(model)  
 
 
 ```
-Chi-square Test: for each wave
-H0: the excess mortality follows the covid-19 death distributions.
+
 ```{r}
+#| echo: false
+#| warning: false
+
+# Chi-square Test: for each wave
+# H0: the excess mortality follows the covid-19 death distributions.
+
 library(dplyr)
 
 merged_death_2020_after_prediction <- merged_death_2020_after_prediction %>%
@@ -863,8 +934,12 @@ print(chi_square_results)
 
 
 
-Question5
+
 ```{r}
+#| echo: false
+#| include: false
+
+# Question5
 library(ggplot2)
 library(dplyr)
 
@@ -890,6 +965,7 @@ for (i in regions2) {
 
 
 ```{r}
+#| echo: false
 wave_definitions <- tibble(
   wave = c("Wave1", "Wave2", "Wave3", "Wave4", "Wave5", "Wave6"),
   start_date = as.Date(c("2020-03-15", "2020-06-15", "2020-11-15", "2021-07-15", "2021-12-01", "2022-05-15")),
