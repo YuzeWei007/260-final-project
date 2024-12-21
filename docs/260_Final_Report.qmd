@@ -44,6 +44,12 @@ We aggregated the cleaned data by wave to calculate total cases and deaths, and 
 \
 Q4
 
+We analyzed excess mortality trends using the **population dataset** (`nst-est2020int-pop.xlsx`) and the **death counts dataset** (`Weekly_Counts_of_Deaths_by_Jurisdiction_and_Age_20241220.csv`). Historical mortality data from 2015 to 2019 was utilized to predict future mortality patterns, which were then compared to observed data from 2020 onward. First, we enriched the death counts dataset by adding `week` and `year` columns derived from the date field, facilitating temporal analysis. Using the enriched data, we developed a polynomial regression model for each state, predicting mortality rates (`deaths_per_100k`) as a function of week and year. This model, trained on pre-2020 historical data, was applied to forecast weekly mortality rates for each state from 2020 to 2024.
+
+We validated these predictions by merging them with observed mortality data from the same death counts dataset for 2020 and beyond. Excess mortality was calculated as the difference between observed mortality rates and our predicted rates, providing insights into deviations during the pandemic period. The resulting data was visualized to highlight excess mortality trends across states, revealing patterns and variations.
+
+To assess the relationship between excess mortality and COVID-related deaths, we calculated the Pearson correlation coefficient to quantify the linear association. Using the merged dataset, we constructed a linear regression model to evaluate how COVID-specific deaths predict excess mortality. The coefficients and confidence intervals from the model provided insights into the statistical significance and reliability of the findings. This analysis integrated the population and death counts datasets with predictive modeling, real-world validation, and statistical analysis to explore excess mortality trends and their link to COVID-related factors, while accounting for assumptions about population stability and addressing limitations such as data quality and external influences.
+
 Q5
 
 Data Q123
@@ -104,6 +110,14 @@ print(img)
 
 Q4
 
+The results reveal a moderate positive correlation between COVID-specific deaths per 100,000 and excess mortality, with a Pearson correlation coefficient of 0.677. A linear regression model further confirms this relationship, showing that each additional COVID-specific death per 100,000 is associated with an increase of 1.642 in excess mortality per 100,000 (p \< 2e-16), with an intercept of 1.533 (p \< 2e-16). The model explains 45.78% of the variance in excess mortality, as indicated by an adjusted R-squared value of 0.4578, and has a residual standard error of 4.245. The 95% confidence interval for the `deaths_per_100k` coefficient ranges from 1.605 to 1.680, confirming the precision of the estimate. Supporting visuals include scatterplots illustrating the relationship between COVID-specific deaths and excess mortality, with a regression line depicting the trend, and weekly excess mortality trends highlighting temporal and geographic variability.
+
+```{r}
+library(magick)
+img <- image_read("table2.png")
+print(img)
+```
+
 #### 
 
 ## **Discussion (600-700 words)**
@@ -129,42 +143,6 @@ The decreasing fatality ratios across the six COVID-19 waves indicate that the v
 Q4 Estimate excess mortality for each week for each state. Do COVID-19 deaths explain the excess mortality?
 
 COVID-19 deaths partially explain excess mortality, as evidenced by the statistically significant positive relationship between COVID-19 death rates and excess mortality in the regression analysis. The coefficient of 0.146 indicates that for every additional 10 COVID-19 deaths per 100,000 people, excess mortality increases by 1.46 per 100,000 on average. However, the low R2R\^2R2 value (0.03076) suggests that COVID-19 deaths account for only a small fraction of the variation in excess mortality. This is because excess mortality is a complex phenomenon influenced by multiple factors beyond direct COVID-19 deaths. These include indirect deaths caused by delayed healthcare, mental health crises, and economic disruptions, as well as reductions in other types of deaths (e.g., traffic accidents) during lockdowns. Additionally, underreporting of COVID-19 deaths and regional differences in healthcare infrastructure and policy responses further contribute to the gap between COVID-19 deaths and excess mortality. While COVID-19 deaths are an important driver, other covariates such as demographic factors, socioeconomic conditions, and state-level interventions likely play a significant role in shaping excess mortality, underscoring the need for more comprehensive models to fully explain the observed trends.
-
-#### **Why is** R2R\^2R2 Low?
-
-The low R2R\^2R2 value (0.03076) indicates that only about **3% of the variance** in excess mortality is explained by the independent variable (deaths_per_100k\text{deaths\_per\_100k}deaths_per_100k). This is expected due to the following reasons:
-
-##### **(1) Complex Nature of Excess Mortality**
-
--   **Definition of Excess Mortality:** Excess mortality includes all deaths above the expected baseline during the pandemic, which encompasses both direct COVID-19 deaths and **indirect deaths** caused by other factors like:
-
-    -   Healthcare disruptions (e.g., reduced access to treatments).
-
-    -   Behavioral changes (e.g., increased substance use, stress-related deaths).
-
-    -   Reduced non-pandemic-related deaths (e.g., fewer traffic accidents due to lockdowns).
-
-    Since indirect deaths may not be closely correlated with COVID-19 death rates, this introduces a significant amount of variability, reducing the model's explanatory power.
-
-##### **(2) Missing Covariates**
-
--   Excess mortality is influenced by **multiple factors** that are not captured in the current model, such as:
-
-    -   **Population demographics:** Age structure and pre-existing health conditions vary across states, significantly affecting baseline mortality and vulnerability to COVID-19.
-
-    -   **Healthcare infrastructure:** Availability of hospital beds, ICU capacity, and access to care affect mortality outcomes but are not accounted for in this model.
-
-    -   **Policy interventions:** Variations in state policies (e.g., lockdowns, mask mandates) influence both COVID-19 and non-COVID deaths.
-
-    -   **Economic and social disparities:** Socioeconomic factors, such as poverty and income inequality, have a strong impact on health outcomes.
-
-##### **(3) High Variability in Data**
-
--   The scatterplot shows **wide dispersion** of excess mortality values across different levels of COVID-19 deaths. This reflects noise in the data caused by regional differences in how deaths are reported, recorded, and classified.
-
--   Some states may underreport COVID-19 deaths, inflating the indirect component of excess mortality and weakening the correlation.
-
-Q5
 
 ## References
 
