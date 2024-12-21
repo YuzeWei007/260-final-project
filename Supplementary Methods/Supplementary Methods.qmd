@@ -4,6 +4,18 @@ format: pdf
 editor: visual
 ---
 
+## Datasets Selection:
+
+1.  Population Data: NST-EST2024-POP.xlsx Source: U.S. Census Bureau Time Frame: 2020–2024 Description: Provides annual state-level population estimates for the years 2020 to 2024. This dataset is used to calculate per capita COVID-19 case and death rates.
+
+2.  Population Data: nst-est2020int-pop.xlsx Source: U.S. Census Bureau Description: Contains intercensal population estimates for the United States, bridging the gaps between the decennial censuses of 2010 and 2020. These annual national-level population figures are meticulously curated by the U.S. Census Bureau, making them a reliable foundation for demographic and mortality analyses. Researchers can use this dataset to understand population changes over the decade and their implications for public health and population dynamics.
+
+3.  Regional Data Source: JSON file hosted on GitHub Description: Defines regional groupings of U.S. states and territories (e.g., "NY & NJ & PR & VI") for aggregated regional analysis.
+
+4.  COVID-19 Cases and Death Data Source: Centers for Disease Control and Prevention (CDC) API Time Frame: January 22, 2020 – May 10, 2023 Description: Provides daily records of new COVID-19 cases and deaths at the state level from 2020 to 2024.
+
+5.  Weekly Counts of Deaths by Jurisdiction and Age Source: National Center for Health Statistics (NCHS) File Used: Weekly_Counts_of_Deaths_by_Jurisdiction_and_Age_20241220.csv Time Period: January 10, 2015 – September 16, 2023 Description: Provides weekly counts of deaths categorized by jurisdiction and age groups across the United States. The data is sourced from the NCHS, a highly reputable authority for health statistics, ensuring its reliability and accuracy. Spanning multiple years, this dataset is a critical resource for analyzing trends in mortality, including patterns observed during significant public health events such as the COVID-19 pandemic. Researchers can trust this data for comprehensive mortality trend analysis and public health assessments.
+
 ## Visualizations
 
 To address question 3, we present a detailed analysis of the characteristics of the COVID-19 virus across different waves. The first plot captures the declining trend in the fatality ratio (deaths per 100 cases) over time, providing evidence that COVID-19 became less virulent as the pandemic progressed.
@@ -20,4 +32,3 @@ The second plot illustrates the trends in COVID-19 cases and deaths across diffe
 img2 <- image_read("Cases_Mortality_with_Waves.png")
 print(img2)
 ```
-

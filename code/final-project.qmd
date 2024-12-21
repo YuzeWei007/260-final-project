@@ -27,39 +27,29 @@ The COVID-19 pandemic has profoundly influenced global health, economies, and so
 
 Recent studies have investigated and highlighted the importance of analyzing mortality trends to better understand the pandemic’s impact. For instance, Chan et al. (2021) quantified the pandemic’s effects on excess mortality and life expectancy (Chan et al., 2021). Moreover, Woolf et al. (2021) analyzed excess deaths in the United States and showed increased mortality from non-COVID-19 causes, such as heart disease and Alzheimer's disease during COVID-19 waves, demonstrating the pandemic's indirect effects on public health outcomes (Woolf et al., 2021). While these studies have provided valuable insights, there are limitations that our study intend to address. Most prior analyses focus on aggregated data or specific time periods and pay little attention to state-level variations and temporal shifts of the pandemic’s impact. Our study tries to offer a much comprehensive and longitudinal analysis that encompasses the entire pandemic period in both national and state level.
 
-In this study, the analysis focuses on several key aspects of the pandemic. First, we divide the timeline into distinct waves based on data visualizations of infection and mortality trends. This section allows for understanding the virus’s evolution and impact over time. Second, we compute death rates for each state during these periods, identifying states that performed better or worse in terms of mortality outcomes. These findings could potentially identify the effectiveness of various public health strategies and problems within state-level healthcare systems. Third, we explore whether COVID-19 became more or less virulent across different periods by investigating changes in mortality rates and excess deaths over time. Furthermore, we extend the scope to estimate weekly excess mortality for each state and evaluate whether COVID-19 deaths explain these excesses.
+In this study, the analysis focuses on several key aspects of the pandemic. First, we divide the timeline into distinct waves based on data visualizations of infection and mortality trends. This section allows for understanding the virus’s evolution and impact over time. Second, we compute death rates for each state during these periods, identifying states that performed better or worse in terms of mortality outcomes. These findings could potentially identify the effectiveness of various public health strategies and problems within state-level healthcare systems. Third, we explore whether COVID-19 became more or less virulent across different periods by investigating changes in mortality rates and excess deaths over time. Furthermore, we extend the scope to estimate weekly excess mortality for each state and evaluate whether COVID-19 deaths explain these excesses. Finally, we identified the states that performed better or worse in terms of excess mortality similar to task 2.
 
 By investigating those key aspects of the pandemic, this study seeks to provide a comprehensive understanding of the dynamics of COVID-19 mortality in the United States, potentially contributing to future pandemic analysis and serving as resources for public health officials to study healthcare systems and improve response strategies and allocation of resources across the nation.
 
 ## **Methods**
 
-Datasets Selection:
+This study utilized multiple reputable datasets from authoritative sources: population estimates from the U.S. Census Bureau, regional groupings via GitHub JSON, COVID-19 case and death data from the CDC API, and weekly mortality counts from the NCHS. These curated datasets provide a robust foundation for our analysis and are included in the supplementary report for transparency and reproducibility. (For detailed descriptions, see the Supplementary Report)
 
-1.Population data: Data source: NST-EST2024-POP.xlsx information about data collection source: data collected by U.S. Census Bureau. Data collection time frame: from 2020 to 2024. Provides annual state-level population estimates for the years 2020 to 2024. This dataset is used to calculate per capita COVID-19 case and death rates.
-
-2.Population data: Data source: U.S. Census Bureau. File used: nst-est2020int-pop.xlsx. Description: This dataset contains intercensal population estimates for the United States, bridging the gaps between the decennial censuses of 2010 and 2020. The data is sourced from the U.S. Census Bureau, a trusted and authoritative provider of demographic information. These annual national-level population figures are meticulously curated, making them a reliable foundation for demographic and mortality analyses. Researchers can utilize this dataset with confidence to understand population changes over the decade and their implications for public health and population dynamics.
-
-3.Regional Data: Source: JSON file hosted on GitHub. Description: Defines regional groupings of U.S. states and territories (e.g., "NY & NJ & PR & VI") for aggregated regional analysis.
-
-4.COVID-19 Cases and Death Data: Source: Centers for Disease Control and Prevention (CDC) API. data collection time frame: January 22, 2020, to May 10, 2023. Description: Provides daily records of new COVID-19 cases and deaths at the state level from 2020 to 2024.
-
-5.The dataset "Weekly Counts of Deaths by Jurisdiction and Age" is sourced from the National Center for Health Statistics (NCHS).File used: Weekly_Counts_of_Deaths_by_Jurisdiction_and_Age_20241220.csv. Time period: The dataset covers weekly counts of deaths from January 10, 2015, to September 16, 2023. Description: This dataset provides weekly counts of deaths categorized by jurisdiction and age groups across the United States. The data is sourced from NCHS, a highly reputable authority for health statistics, ensuring its reliability and accuracy. Spanning multiple years, the dataset is a critical resource for analyzing trends in mortality, including patterns observed during significant public health events such as the COVID-19 pandemic. Researchers can trust this data for comprehensive mortality trend analysis and public health assessments.
-
-Task 1
+**Task 1**
 
 We approached cleaning and analyzing the data systematically to ensure accuracy and usability. First, we loaded the population data from the provided Excel file and cleaned it by renaming columns, filtering out irrelevant rows, and removing unnecessary columns such as "Base_2020." We standardized the geographic area names and mapped state names to their respective abbreviations using conditional logic. Next, we reshaped the dataset from a wide to a long format to facilitate time-series analysis and integrated regional data from an external JSON source, mapping each state to its corresponding region. To analyze COVID-19 cases and deaths, we fetched data from an API, selected relevant columns, renamed them for clarity, and converted data types for numerical calculations and date handling. Anomalies such as negative values were identified and managed. We joined the cleaned population data with the case and mortality data to calculate metrics like cases and deaths per 100,000 people, enabling a comparative analysis across states and over time. We defined specific time periods, termed "waves," corresponding to COVID-19 surges and analyzed the peaks in cases and deaths for each wave. Using visualizations, we plotted trends in cases and deaths, with shaded regions indicating distinct waves.
 
-Task 2
+**Task 2**
 
 We approached cleaning and analyzing the data by first ensuring that all necessary variables were properly formatted and any anomalies were addressed. For the mortality data, we converted the dates to a standardized format and replaced negative death rates with zeros to maintain logical consistency. We then categorized regions into broader major regions, such as "Northeast," "South," "West," and "Midwest," to facilitate regional analysis. Death rates were analyzed over time by plotting trends for each major region, highlighting the changes in mortality rates over the years.
 
 We used color-coded categories to distinguish between the "Top 5" (worst-performing states) and the "Bottom 5" (best-performing states) for each wave. These visualizations were organized in facets by wave, providing a clear and comparative view of state performance across different time periods.
 
-Task 3
+**Task 3**
 
 We began the cleaning and analysis process by defining the six distinct COVID-19 waves using specific start and end dates. We applied a custom function to assign each record in the cases and deaths datasets to its corresponding wave based on the date, ensuring accurate temporal segmentation. After this, we cleaned and harmonized the datasets by retaining essential columns, such as the date, wave, and rate values (e.g., cases or deaths per 100,000), and added a type label to differentiate between cases and deaths. This allowed us to unify the data structure for streamlined analysis. We aggregated the cleaned data by wave to calculate total cases and deaths, and then computed the fatality ratio (deaths per 100 cases) for each wave as a percentage to assess the severity of outcomes. Finally, we visualized the trends of cases and deaths over time, segmented by wave, and plotted the fatality ratio to highlight variations in mortality risk across the waves.
 
-Task 4
+**Task 4**
 
 We analyzed excess mortality trends using the population dataset (nst-est2020int-pop.xlsx) and the death counts dataset (Weekly_Counts_of_Deaths_by_Jurisdiction_and_Age_20241220.csv). Historical mortality data from 2015 to 2019 was utilized to predict future mortality patterns, which were then compared to observed data from 2020 onward.
 
@@ -69,13 +59,13 @@ To investigate the relationship between excess mortality and COVID-19 deaths acr
 
 To further assess the relationship between excess mortality and COVID-19 deaths, we firstly conducted Chi-square tests for each wave to assess whether the the distribution of excess mortality aligns with the distribution of COVID-19 deaths. Furthermore, using the merged dataset, we constructed a linear regression model to evaluate how COVID-19 deaths predict excess mortality.
 
-Task 5
+**Task 5**
 
 We began by cleaning the dataset to focus on relevant records, assigning each observation to a predefined wave (e.g., Wave1, Wave2) based on specific time intervals. Observations without a corresponding wave were removed to ensure consistency. We then grouped the data by wave and state, calculating the average excess mortality per 100,000 for each state during each wave. States were ranked within each wave based on their average excess mortality and categorized into the “Worst 5 (Highest)” and “Best 5 (Lowest)” states for further analysis. To analyze regional trends, we plotted excess mortality trends for each region from 2020 to 2024, highlighting state-level variations over time. Additionally, we visualized the rankings by creating a bar plot to showcase the top 5 states with the highest average excess mortality and the bottom 5 states with the lowest average excess mortality for each wave.
 
 ## **Results**
 
-Task 1
+**Task 1**
 
 Divide the pandemic period, January 2020 to December 2024 into *waves*. Justify your choice with data visualization
 
@@ -572,7 +562,7 @@ top_and_bottom_5_avg_rank <- state_wave_summary |>
   arrange(wave, rank_category, rank_avg)
 ```
 
-Task 2
+**Task 2**
 
 For each period compute the deaths rates by state. Describe which states did better or worse during the different periods.
 
@@ -679,9 +669,11 @@ ggplot(combined_data_filtered, aes(x = date, y = value, color = wave)) +
 
 
 ```
-Task 3
+
+**Task 3**
 
 The fatality ratios (deaths per 100 cases) across the six COVID-19 waves show a decreasing trend over time. Wave 1 has the highest fatality ratio at 5.36%, followed by a significant drop in Wave 2 to 1.63%. Wave 3 records a slightly lower fatality ratio of 1.53%, while Wave 4 continues the decline to 1.08%. Waves 5 and 6 show further reductions, with fatality ratios of 0.64% and 0.42%, respectively. This table reflects the variation in fatality ratios across the waves.
+
 ```{r}
 
 #| echo: false
@@ -884,40 +876,14 @@ ggplot(merged_death_2020_after_prediction, aes(x = week, y = excess_mortality, c
 
 ```
 
-Task 4
+**Task 4**
 
 To investigate the relationship between excess mortality and COVID-19 deaths across different pandemic waves, we conducted a Chi-square test for each wave to test the null hypothesis that the distribution of excess mortality aligns with the distribution of COVID-19 deaths. Table 2 demonstrates variability in the results across the six waves. For Wave 1, the p-value was 0.8026, indicating that we fail to reject the null hypothesis. In contrast, for Waves 2 through 6, the p-values were all significantly below 0.05, leading to rejection of the null hypothesis.
 
-```{r}
-
-#| echo: false
-#|  warning: false
-
-# confidence
-#correlation <- cor(merged_death_2020_after_prediction$excess_mortality, merged_death_2020_after_prediction$deaths_per_100k, method = "pearson")
 
 
 
-ggplot(merged_death_2020_after_prediction, aes(x = deaths_per_100k, y = excess_mortality)) +
-  geom_point() +
-  geom_smooth(method = "lm", se = TRUE, color = "blue") +
-  labs(title = "Relationship between COVID Deaths and Excess Mortality",
-       x = "COVID Deaths",
-       y = "Excess Mortality")
 
-
-model <- lm(excess_mortality ~ deaths_per_100k, data = merged_death_2020_after_prediction)
-
-
-#summary(model)
-#print(paste("Pearson correlation coefficient:", correlation))
-
-#coef(model)  
-#confint(model)  
-
-
-```
-Moreover, the results of our linear model reveal a moderate positive correlation between COVID-specific deaths per 100,000 and excess mortality, with a Pearson correlation coefficient of 0.677, illustrating that the excess mortality increases as Covid-19 deaths increase. A linear regression model further confirms this relationship, showing that each additional COVID-specific death per 100,000 is associated with an increase of 1.642 in excess mortality per 100,000 (p \< 2e-16), with an intercept of 1.533 (p \< 2e-16). The model explains 45.78% of the variance in excess mortality, as indicated by an adjusted R-squared value of 0.4578, and has a residual standard error of 4.245. The 95% confidence interval for the deaths_per_100k coefficient ranges from 1.605 to 1.680, confirming the precision of the estimate. Supporting visuals include scatterplots illustrating the relationship between COVID-specific deaths and excess mortality, with a regression line depicting the trend, and weekly excess mortality trends highlighting temporal and geographic variability.
 ```{r}
 #| echo: false
 #| warning: false
@@ -984,6 +950,37 @@ chi_square_results <- grouped_data %>%
 print(chi_square_results)
 ```
 
+Moreover, the results of our linear model reveal a moderate positive correlation between COVID-specific deaths per 100,000 and excess mortality, with a Pearson correlation coefficient of 0.677, illustrating that the excess mortality increases as Covid-19 deaths increase. A linear regression model further confirms this relationship, showing that each additional COVID-specific death per 100,000 is associated with an increase of 1.642 in excess mortality per 100,000 (p \< 2e-16), with an intercept of 1.533 (p \< 2e-16). The model explains 45.78% of the variance in excess mortality, as indicated by an adjusted R-squared value of 0.4578, and has a residual standard error of 4.245. The 95% confidence interval for the deaths_per_100k coefficient ranges from 1.605 to 1.680, confirming the precision of the estimate. Supporting visuals include scatterplots illustrating the relationship between COVID-specific deaths and excess mortality, with a regression line depicting the trend, and weekly excess mortality trends highlighting temporal and geographic variability.
+```{r}
+
+#| echo: false
+#|  warning: false
+
+# confidence
+#correlation <- cor(merged_death_2020_after_prediction$excess_mortality, merged_death_2020_after_prediction$deaths_per_100k, method = "pearson")
+
+
+
+ggplot(merged_death_2020_after_prediction, aes(x = deaths_per_100k, y = excess_mortality)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = TRUE, color = "blue") +
+  labs(title = "Relationship between COVID Deaths and Excess Mortality",
+       x = "COVID Deaths",
+       y = "Excess Mortality")
+
+
+model <- lm(excess_mortality ~ deaths_per_100k, data = merged_death_2020_after_prediction)
+
+
+#summary(model)
+#print(paste("Pearson correlation coefficient:", correlation))
+
+#coef(model)  
+#confint(model)  
+
+
+```
+
 ```{r}
 #| echo: false
 #| include: false
@@ -1011,9 +1008,11 @@ for (i in regions2) {
   print(p)
 }
 ```
-Task 5
+
+**Task 5**
 
 The results show the top five states with the highest average excess mortality per 100,000 population ("Worst 5") and the bottom five states with the lowest average excess mortality ("Best 5") across six defined COVID-19 waves. In Wave 1, New Jersey had the highest excess mortality, while Hawaii had the lowest. During Wave 2, Mississippi ranked highest, with Hawaii again ranking lowest. In Wave 3, Mississippi remained the state with the highest excess mortality, while Hawaii and Puerto Rico exhibited the lowest levels. Wave 4 showed Alaska, Mississippi, and West Virginia with the highest excess mortality, while New Jersey and Massachusetts had the lowest. Wave 5 featured West Virginia, New Mexico, and Kentucky as the states with the highest excess mortality, with Puerto Rico and Hawaii showing the lowest. In Wave 6, Alaska exhibited the highest excess mortality, while Rhode Island had the lowest. These trends are clearly illustrated in the bar chart, which presents the average excess mortality for each state by wave, categorized into the "Worst 5 (Highest)" and "Best 5 (Lowest)" groups, enabling direct comparison across different periods and regions.
+
 ```{r}
 #| echo: false
 wave_definitions <- tibble(
@@ -1078,28 +1077,27 @@ ggplot(top_and_bottom_5_excess, aes(x = reorder_within(state_name, avg_excess_mo
 
 ```
 
-
 #### 
 
 ## **Discussion**
 
-Task 1
+**Task 1**
 
 The results highlight the evolving dynamics of the COVID-19 pandemic, shaped by public health measures, vaccination efforts, and viral mutations. The sharp rise in cases and mortality during Wave 3 reflects a critical period when the healthcare system was overwhelmed and vaccination efforts were still ramping up. The subsequent decline in mortality in Waves 4, 5, and 6, despite continued case fluctuations, underscores the effectiveness of vaccines, improved treatments, and increased immunity. These trends illustrate the transition from a high-mortality pandemic phase to a more controlled but persistent presence of the virus, influenced by policy decisions and population behavior
 
-Task 2
+**Task 2**
 
 The results reflect how geographic, demographic, and systemic factors influenced the distribution of COVID-19 death rates across different regions and waves. In early waves, densely populated Northeastern states experienced the highest death rates, likely due to the rapid initial spread of the virus and overwhelmed healthcare systems. By Wave 2, the focus shifted to the South, where structural healthcare disparities and resistance to public health measures may have exacerbated outcomes. Wave 3 marked a turning point, with Midwest and Southern states bearing the brunt, potentially due to a combination of surging variants, winter conditions favoring transmission, and vaccine rollout delays. As vaccination efforts expanded and treatment protocols improved, later waves showed a notable shift. Death rates in traditionally high-risk regions like the Northeast declined significantly, suggesting the impact of better healthcare access and higher vaccine uptake. Conversely, states in the South, Midwest, and Mountain West continued to struggle in Waves 4 through 6, where structural healthcare weaknesses and vaccine hesitancy likely played a role. Overall, the data underscores how public health infrastructure, demographic factors, and behavioral responses influenced regional outcomes, with states demonstrating varied capacities to adapt to the evolving challenges of the pandemic.
 
-Task 3
+**Task 3**
 
 The decreasing fatality ratios across the six COVID-19 waves indicate that the virus became less virulent over time, with Wave 1 showing the highest fatality ratio (5.36%) and Wave 6 the lowest (0.42%). This trend likely reflects advancements in treatments, widespread vaccination, and increased population immunity. It may also suggest that later variants, while more transmissible, caused less severe disease. However, variations in testing rates, healthcare access, and reporting practices could have influenced these results. These findings emphasize the importance of continued public health efforts and research to understand and respond to evolving disease dynamics.
 
-Task 4
+**Task 4**
 
 COVID-19 deaths partially explain excess mortality, as evidenced by the statistically significant positive relationship between COVID-19 death rates and excess mortality in the regression analysis. The coefficient of 1.642 indicates that for every additional COVID-19 death per 100,000 people, excess mortality increases by 1.642 per 100,000 on average. However, the low R-squared value (0.4578) suggests that COVID-19 deaths account for only a portion of the variation in excess mortality. The p-value patterns across different pandemic waves further illuminate this complexity. In addition, base on results of chi-square test. During Wave 1, the distribution of excess mortality closely aligned with COVID-19 deaths, suggesting that COVID-19 was the primary driver of excess mortality. However, in later waves, other factors likely influenced the divergence between excess mortality and COVID-19 deaths. These include indirect deaths caused by delayed healthcare access, mental health crises, and economic disruptions. The divergence in later waves underscores the complexity of excess mortality trends, with a significant role played by factors beyond direct COVID-19 deaths, such as healthcare system overload and severe complications of COVID-19. While COVID-19 deaths are an important driver, other covariates such as demographic factors, socioeconomic conditions, and state-level interventions likely play a significant role in shaping excess mortality. These findings underscore the need for more comprehensive models to fully explain the observed trends and inform public health policy during pandemics and similar crises.
 
-Task 5
+**Task 5**
 
 Our analysis of excess mortality across the six COVID-19 waves reveals notable patterns in state-level outcomes. In Wave 1, New Jersey experienced the highest excess mortality, reflecting the early severity of the pandemic in densely populated regions, while Hawaii’s geographic isolation likely contributed to its low rates. Mississippi consistently ranked among the worst-performing states in Waves 2 and 3, suggesting persistent vulnerabilities such as limited healthcare access or public health measures, whereas Hawaii and Puerto Rico maintained low mortality rates, demonstrating effective pandemic management. Wave 4 saw a shift, with Alaska and West Virginia showing the highest excess mortality, possibly due to healthcare access challenges in rural areas, while northeastern states like New Jersey and Massachusetts improved, benefiting from strong vaccination campaigns and public health measures. In Wave 5, states like West Virginia and New Mexico were among the worst, reflecting continued challenges in certain regions, while Puerto Rico and Hawaii again performed better, highlighting sustained resilience. By Wave 6, Alaska had the highest excess mortality, likely due to ongoing infrastructure challenges, while Rhode Island achieved the lowest rates, signaling effective public health strategies. These results emphasize the importance of state-level differences in healthcare capacity, public health policies, and geographic factors in shaping pandemic outcomes. They underscore the need for targeted interventions to address vulnerabilities and strengthen resilience during future health crises.
 
