@@ -10,6 +10,12 @@ editor: visual
 
 -   **Guidelines**: Limit this section to 150-200 words. Briefly outline the purpose of your study, the approach you used, and the primary results and conclusions. The abstract should be clear, succinct, and give readers an immediate understanding of what your project entails.
 
+This study investigates the patterns, trends, and impacts of COVID-19 mortality across the United States from January 2020 to December 2024, focusing on state-level variations, excess mortality, and temporal dynamics. By dividing the pandemic into six distinct waves based on case and mortality trends, we analyzed changes in death rates, fatality ratios, and excess mortality over time, incorporating demographic factors such as age and sex.
+
+Using population data, historical mortality rates, and COVID-19 case and death data, we calculated expected mortality baselines and excess mortality trends for each wave. The findings reveal significant variability across states and regions, with Northeastern states suffering the highest death rates in early waves and Southern and rural states disproportionately affected in later waves. Mortality rates declined over time, with fatality ratios dropping from 5.36% in Wave 1 to 0.42% in Wave 6, reflecting advancements in treatment, vaccination, and immunity.
+
+Excess mortality analysis highlights the multifaceted impacts of the pandemic, showing a partial correlation between COVID-19 deaths and excess deaths. Other contributing factors include delayed medical care and socioeconomic disparities. The study underscores the importance of adaptive public health strategies and robust healthcare infrastructure to mitigate future crises, providing a comprehensive framework for analyzing and responding to public health emergencies.
+
 ## Introduction **(500-600 words)**
 
 The COVID-19 pandemic has profoundly influenced global health, economies, and societal structures. From January 2020 to December 2024, the United States experienced multiple waves of COVID-19 infections and deaths. These waves provide a unique opportunity to analyze the evolution of COVID-19's impact over time. By examining mortality data across states and time periods, this study aims to investigate patterns and trends to better understand the trajectory of this pandemic.
@@ -55,23 +61,17 @@ We began by cleaning the dataset to focus on relevant records, assigning each ob
 
 To analyze regional trends, we plotted excess mortality trends for each region from 2020 to 2024, highlighting state-level variations over time. Additionally, we visualized the rankings by creating a bar plot to showcase the top 5 states with the highest average excess mortality and the bottom 5 states with the lowest average excess mortality for each wave. This approach allowed us to systematically explore temporal and geographic patterns in excess mortality, providing insights into the states and regions most and least affected during each wave.
 
-
 Dataset Description:
-Q 1,2,3
 
-1.Population data: Data source: NST-EST2024-POP.xlsx information about data collection source: data collected by U.S. Census Bureau. From website: https://www.census.gov/data/tables/time-series/demo/popest/2020s-state-total.html
+1.Population data: Data source: NST-EST2024-POP.xlsx information about data collection source: data collected by U.S. Census Bureau. From website: https://www.census.gov/data/tables/time-series/demo/popest/2020s-state-total.html. Data collection time frame: from 2020 to 2024. Provides annual state-level population estimates for the years 2020 to 2024. This dataset is used to calculate per capita COVID-19 case and death rates.
 
-data collection time frame: from 2020 to 2024. Provides annual state-level population estimates for the years 2020 to 2024. This dataset is used to calculate per capita COVID-19 case and death rates.
+2.Data source: U.S. Census Bureau. Access URL: <https://www.census.gov/data/tables/time-series/demo/popest/intercensal-2010-2020-national.html> File used: nst-est2020int-pop.xlsx. Description: This dataset contains intercensal population estimates for the United States, bridging the gaps between the decennial censuses of 2010 and 2020. The data is sourced from the U.S. Census Bureau, a trusted and authoritative provider of demographic information. These annual national-level population figures are meticulously curated, making them a reliable foundation for demographic and mortality analyses. Researchers can utilize this dataset with confidence to understand population changes over the decade and their implications for public health and population dynamics.
 
-2.Regional Data: Source: JSON file hosted on GitHub. URL: https://github.com/datasciencelabs/2024/raw/refs/heads/main/data/regions.json. Description: Defines regional groupings of U.S. states and territories (e.g., "NY & NJ & PR & VI") for aggregated regional analysis.
+3.Regional Data: Source: JSON file hosted on GitHub. URL: https://github.com/datasciencelabs/2024/raw/refs/heads/main/data/regions.json. Description: Defines regional groupings of U.S. states and territories (e.g., "NY & NJ & PR & VI") for aggregated regional analysis.
 
-3.COVID-19 Cases and Death Data: Source: Centers for Disease Control and Prevention (CDC) API. data collection time frame: January 22, 2020, to May 10, 2023 API Endpoint: https://data.cdc.gov/resource/pwn4-m3yp.json. Description: Provides daily records of new COVID-19 cases and deaths at the state level from 2020 to 2024.
+4.COVID-19 Cases and Death Data: Source: Centers for Disease Control and Prevention (CDC) API. data collection time frame: January 22, 2020, to May 10, 2023 API Endpoint: https://data.cdc.gov/resource/pwn4-m3yp.json. Description: Provides daily records of new COVID-19 cases and deaths at the state level from 2020 to 2024.
 
-Q 4,5
-
-4.Weekly Counts of Deaths by Jurisdiction and Age Data: Data source: The dataset "Weekly Counts of Deaths by Jurisdiction and Age" is sourced from the National Center for Health Statistics (NCHS). Access URL: https://data.cdc.gov/NCHS/Weekly-Counts-of-Deaths-by-Jurisdiction-and-Age/y5bj-9g5w/about_data File used: Weekly_Counts_of_Deaths_by_Jurisdiction_and_Age_20241220.csv. Time period: The dataset covers weekly counts of deaths from January 10, 2015, to September 16, 2023. Description: This dataset provides weekly counts of deaths categorized by jurisdiction and age groups across the United States. It spans multiple years and is used to analyze trends in mortality, including patterns during significant public health events such as the COVID-19 pandemic.
-
-5.  Intercensal Population Estimates (2010-2020): Data source: U.S. Census Bureau. Access URL: https://www.census.gov/data/tables/time-series/demo/popest/intercensal-2010-2020-national.html File used: nst-est2020int-pop.xlsx. Description: This dataset contains intercensal population estimates for the United States, bridging the gaps between decennial censuses (2010 and 2020). It offers annual national-level population figures for demographic analyses, allowing researchers to adjust for population changes over the decade. Both datasets are integral for demographic and mortality analysis, aiding in understanding trends over time and their implications on public health and population dynamics.
+5.Data source: The dataset "Weekly Counts of Deaths by Jurisdiction and Age" is sourced from the National Center for Health Statistics (NCHS). Access URL: <https://data.cdc.gov/NCHS/Weekly-Counts-of-Deaths-by-Jurisdiction-and-Age/y5bj-9g5w/about_data> File used: Weekly_Counts_of_Deaths_by_Jurisdiction_and_Age_20241220.csv. Time period: The dataset covers weekly counts of deaths from January 10, 2015, to September 16, 2023. Description: This dataset provides weekly counts of deaths categorized by jurisdiction and age groups across the United States. The data is sourced from NCHS, a highly reputable authority for health statistics, ensuring its reliability and accuracy. Spanning multiple years, the dataset is a critical resource for analyzing trends in mortality, including patterns observed during significant public health events such as the COVID-19 pandemic. Researchers can trust this data for comprehensive mortality trend analysis and public health assessments.
 
 ## **Results (500-600 words)**
 
@@ -115,11 +115,11 @@ print(img)
 
 Q4
 
-The results reveal a moderate positive correlation between COVID-specific deaths per 100,000 and excess mortality, with a Pearson correlation coefficient of 0.677. A linear regression model further confirms this relationship, showing that each additional COVID-specific death per 100,000 is associated with an increase of 1.642 in excess mortality per 100,000 (p \< 2e-16), with an intercept of 1.533 (p \< 2e-16). The model explains 45.78% of the variance in excess mortality, as indicated by an adjusted R-squared value of 0.4578, and has a residual standard error of 4.245. The 95% confidence interval for the `deaths_per_100k` coefficient ranges from 1.605 to 1.680, confirming the precision of the estimate. Supporting visuals include scatterplots illustrating the relationship between COVID-specific deaths and excess mortality, with a regression line depicting the trend, and weekly excess mortality trends highlighting temporal and geographic variability.
+The results reveal a moderate positive correlation between COVID-specific deaths per 100,000 and excess mortality, with a Pearson correlation coefficient of 0.677. A linear regression model further confirms this relationship, showing that each additional COVID-specific death per 100,000 is associated with an increase of 1.642 in excess mortality per 100,000 (p \< 2e-16), with an intercept of 1.533 (p \< 2e-16). The model explains 45.78% of the variance in excess mortality, as indicated by an adjusted R-squared value of 0.4578, and has a residual standard error of 4.245. The 95% confidence interval for the `deaths_per_100k` coefficient ranges from 1.605 to 1.680, confirming the precision of the estimate. Supporting visuals include scatterplots illustrating the relationship between COVID-specific deaths and excess mortality, with a regression line depicting the trend, and weekly excess mortality trends highlighting temporal and geographic variability.xx
 
 ```{r}
 library(magick)
-img <- image_read("table2.png")
+img <- image_read("graph4.png")
 print(img)
 ```
 
@@ -168,7 +168,6 @@ Our analysis of excess mortality across the six COVID-19 waves reveals notable p
 Wave 4 saw a shift, with Alaska and West Virginia showing the highest excess mortality, possibly due to healthcare access challenges in rural areas, while northeastern states like New Jersey and Massachusetts improved, benefiting from strong vaccination campaigns and public health measures. In Wave 5, states like West Virginia and New Mexico were among the worst, reflecting continued challenges in certain regions, while Puerto Rico and Hawaii again performed better, highlighting sustained resilience. By Wave 6, Alaska had the highest excess mortality, likely due to ongoing infrastructure challenges, while Rhode Island achieved the lowest rates, signaling effective public health strategies.
 
 These results emphasize the importance of state-level differences in healthcare capacity, public health policies, and geographic factors in shaping pandemic outcomes. They underscore the need for targeted interventions to address vulnerabilities and strengthen resilience during future health crises.
-
 
 ## References
 
