@@ -1,223 +1,1120 @@
 ---
-title: "final-project"
-format: html
-editor: visual
----
----
-title: Problem set 4
+title: Final_Project
 date: 2024-10-04
-format: pdf
+format: 
+  pdf:
+    fig-width: 9 
+    fig-height: 7   
+  
+execute:
+  echo: false
+  warning: false
 ---
 
-In the next problem set, we plan to explore the relationship between COVID-19 death rates and vaccination rates across US states by visually examining their correlation. This analysis will involve gathering COVID-19 related data from the CDC's API and then extensively processing it to merge the various datasets. Since the population sizes of states vary significantly, we will focus on comparing rates rather than absolute numbers. To facilitate this, we will also source population data from the US Census to accurately calculate these rates. 
-          
-In this problem set we will learn how to extract and wrangle data from the data US Census and CDC APIs.
+------------------------------------------------------------------------
 
-1. Get an API key from the US Census at <https://api.census.gov/data/key_signup.html>. You can't share this public key. But your code has to run on a TFs computer. Assume the TF will have a file in their working directory named `census-key.R` with the following one line of code:
+## **Abstract**
 
-```
-census_key <- "A_CENSUS_KEY_THAT_WORKS"
-```
+This study investigates the patterns, trends, and impacts of COVID-19 mortality across the United States from January 2020 to December 2024, focusing on state-level variations, excess mortality, and temporal dynamics. By dividing the pandemic into six distinct waves based on case and mortality trends, we analyzed changes in death rates, fatality ratios, and excess mortality over time.
 
-Write a first line of code for your problem set that defines `census_key` by running the code in the file `census-key.R`.
+Using population data, historical mortality rates, and COVID-19 case and death data, we predicted expected mortality baselines and excess mortality trends for each wave. The findings reveal significant variability across states and regions, for example with Northeastern states suffering the highest death rates in early waves and Southern and rural states disproportionately affected in later waves. Moreover, our results showed that mortality rates declined over time, with fatality ratios dropping from 5.36% in Wave 1 to 0.42% in Wave 6, reflecting advancements in treatment, vaccination, and immunity.
+
+Excess mortality analysis highlights the multifaceted impacts of the pandemic. According to ouyr analysis, COVID-19 deaths were a primary driver of excess mortality during Wave 1. However, later waves reflect a more complex influence of other factors beyond direct COVID-19 deaths, such as healthcare system overload and severe complications of COVID-19. The study underscores the importance of adaptive public health strategies and robust healthcare infrastructure to mitigate future crises, providing a comprehensive framework for analyzing and responding to public health emergencies.
+
+## Introduction
+
+The COVID-19 pandemic has profoundly influenced global health, economies, and societal structures. From January 2020 to December 2024, the United States experienced multiple waves of COVID-19 infections and deaths. These waves provide a unique opportunity to analyze the evolution of COVID-19's impact over time. By examining mortality data across states and time periods, this study aims to investigate patterns and trends to better understand the trajectory of this pandemic.
+
+Recent studies have investigated and highlighted the importance of analyzing mortality trends to better understand the pandemic’s impact. For instance, Chan et al. (2021) quantified the pandemic’s effects on excess mortality and life expectancy (Chan et al., 2021). Moreover, Woolf et al. (2021) analyzed excess deaths in the United States and showed increased mortality from non-COVID-19 causes, such as heart disease and Alzheimer's disease during COVID-19 waves, demonstrating the pandemic's indirect effects on public health outcomes (Woolf et al., 2021). While these studies have provided valuable insights, there are limitations that our study intend to address. Most prior analyses focus on aggregated data or specific time periods and pay little attention to state-level variations and temporal shifts of the pandemic’s impact. Our study tries to offer a much comprehensive and longitudinal analysis that encompasses the entire pandemic period in both national and state level.
+
+In this study, the analysis focuses on several key aspects of the pandemic. First, we divide the timeline into distinct waves based on data visualizations of infection and mortality trends. This section allows for understanding the virus’s evolution and impact over time. Second, we compute death rates for each state during these periods, identifying states that performed better or worse in terms of mortality outcomes. These findings could potentially identify the effectiveness of various public health strategies and problems within state-level healthcare systems. Third, we explore whether COVID-19 became more or less virulent across different periods by investigating changes in mortality rates and excess deaths over time. Furthermore, we extend the scope to estimate weekly excess mortality for each state and evaluate whether COVID-19 deaths explain these excesses.
+
+By investigating those key aspects of the pandemic, this study seeks to provide a comprehensive understanding of the dynamics of COVID-19 mortality in the United States, potentially contributing to future pandemic analysis and serving as resources for public health officials to study healthcare systems and improve response strategies and allocation of resources across the nation.
+
+## **Methods**
+
+Datasets Selection:
+
+1.Population data: Data source: NST-EST2024-POP.xlsx information about data collection source: data collected by U.S. Census Bureau. Data collection time frame: from 2020 to 2024. Provides annual state-level population estimates for the years 2020 to 2024. This dataset is used to calculate per capita COVID-19 case and death rates.
+
+2.Population data: Data source: U.S. Census Bureau. File used: nst-est2020int-pop.xlsx. Description: This dataset contains intercensal population estimates for the United States, bridging the gaps between the decennial censuses of 2010 and 2020. The data is sourced from the U.S. Census Bureau, a trusted and authoritative provider of demographic information. These annual national-level population figures are meticulously curated, making them a reliable foundation for demographic and mortality analyses. Researchers can utilize this dataset with confidence to understand population changes over the decade and their implications for public health and population dynamics.
+
+3.Regional Data: Source: JSON file hosted on GitHub. Description: Defines regional groupings of U.S. states and territories (e.g., "NY & NJ & PR & VI") for aggregated regional analysis.
+
+4.COVID-19 Cases and Death Data: Source: Centers for Disease Control and Prevention (CDC) API. data collection time frame: January 22, 2020, to May 10, 2023. Description: Provides daily records of new COVID-19 cases and deaths at the state level from 2020 to 2024.
+
+5.The dataset "Weekly Counts of Deaths by Jurisdiction and Age" is sourced from the National Center for Health Statistics (NCHS).File used: Weekly_Counts_of_Deaths_by_Jurisdiction_and_Age_20241220.csv. Time period: The dataset covers weekly counts of deaths from January 10, 2015, to September 16, 2023. Description: This dataset provides weekly counts of deaths categorized by jurisdiction and age groups across the United States. The data is sourced from NCHS, a highly reputable authority for health statistics, ensuring its reliability and accuracy. Spanning multiple years, the dataset is a critical resource for analyzing trends in mortality, including patterns observed during significant public health events such as the COVID-19 pandemic. Researchers can trust this data for comprehensive mortality trend analysis and public health assessments.
+
+Task 1
+
+We approached cleaning and analyzing the data systematically to ensure accuracy and usability. First, we loaded the population data from the provided Excel file and cleaned it by renaming columns, filtering out irrelevant rows, and removing unnecessary columns such as "Base_2020." We standardized the geographic area names and mapped state names to their respective abbreviations using conditional logic. Next, we reshaped the dataset from a wide to a long format to facilitate time-series analysis and integrated regional data from an external JSON source, mapping each state to its corresponding region. To analyze COVID-19 cases and deaths, we fetched data from an API, selected relevant columns, renamed them for clarity, and converted data types for numerical calculations and date handling. Anomalies such as negative values were identified and managed. We joined the cleaned population data with the case and mortality data to calculate metrics like cases and deaths per 100,000 people, enabling a comparative analysis across states and over time. We defined specific time periods, termed "waves," corresponding to COVID-19 surges and analyzed the peaks in cases and deaths for each wave. Using visualizations, we plotted trends in cases and deaths, with shaded regions indicating distinct waves.
+
+Task 2
+
+We approached cleaning and analyzing the data by first ensuring that all necessary variables were properly formatted and any anomalies were addressed. For the mortality data, we converted the dates to a standardized format and replaced negative death rates with zeros to maintain logical consistency. We then categorized regions into broader major regions, such as "Northeast," "South," "West," and "Midwest," to facilitate regional analysis. Death rates were analyzed over time by plotting trends for each major region, highlighting the changes in mortality rates over the years.
+
+We used color-coded categories to distinguish between the "Top 5" (worst-performing states) and the "Bottom 5" (best-performing states) for each wave. These visualizations were organized in facets by wave, providing a clear and comparative view of state performance across different time periods.
+
+Task 3
+
+We began the cleaning and analysis process by defining the six distinct COVID-19 waves using specific start and end dates. We applied a custom function to assign each record in the cases and deaths datasets to its corresponding wave based on the date, ensuring accurate temporal segmentation. After this, we cleaned and harmonized the datasets by retaining essential columns, such as the date, wave, and rate values (e.g., cases or deaths per 100,000), and added a type label to differentiate between cases and deaths. This allowed us to unify the data structure for streamlined analysis. We aggregated the cleaned data by wave to calculate total cases and deaths, and then computed the fatality ratio (deaths per 100 cases) for each wave as a percentage to assess the severity of outcomes. Finally, we visualized the trends of cases and deaths over time, segmented by wave, and plotted the fatality ratio to highlight variations in mortality risk across the waves.
+
+Task 4
+
+We analyzed excess mortality trends using the population dataset (nst-est2020int-pop.xlsx) and the death counts dataset (Weekly_Counts_of_Deaths_by_Jurisdiction_and_Age_20241220.csv). Historical mortality data from 2015 to 2019 was utilized to predict future mortality patterns, which were then compared to observed data from 2020 onward.
+
+First, we enriched the death counts dataset by adding week and year columns derived from the date field, facilitating temporal analysis. Using the enriched data, we developed a polynomial regression model for each state, predicting mortality rates as a function of week and year. This model, trained on pre-2020 historical data, was applied to forecast weekly mortality rates for each state from 2020 to 2024. Excess mortality was calculated as the difference between observed mortality rates and our predicted baseline rates, providing insights into deviations during the pandemic period. The resulting data was visualized to highlight excess mortality trends across states, revealing patterns and variations.
+
+To investigate the relationship between excess mortality and COVID-19 deaths across different pandemic waves, we conducted a Chi-square test for each wave with the null hypothesis that the distribution of excess mortality aligns with the distribution of COVID-19 deaths. This analysis added an additional layer of understanding, specifically examining how these distributions aligned during six defined pandemic waves.
+
+To further assess the relationship between excess mortality and COVID-19 deaths, we firstly conducted Chi-square tests for each wave to assess whether the the distribution of excess mortality aligns with the distribution of COVID-19 deaths. Furthermore, using the merged dataset, we constructed a linear regression model to evaluate how COVID-19 deaths predict excess mortality.
+
+Task 5
+
+We began by cleaning the dataset to focus on relevant records, assigning each observation to a predefined wave (e.g., Wave1, Wave2) based on specific time intervals. Observations without a corresponding wave were removed to ensure consistency. We then grouped the data by wave and state, calculating the average excess mortality per 100,000 for each state during each wave. States were ranked within each wave based on their average excess mortality and categorized into the “Worst 5 (Highest)” and “Best 5 (Lowest)” states for further analysis. To analyze regional trends, we plotted excess mortality trends for each region from 2020 to 2024, highlighting state-level variations over time. Additionally, we visualized the rankings by creating a bar plot to showcase the top 5 states with the highest average excess mortality and the bottom 5 states with the lowest average excess mortality for each wave.
+
+## **Results**
+
+Task 1
+
+Divide the pandemic period, January 2020 to December 2024 into *waves*. Justify your choice with data visualization
 
 ```{r}
-source("census-key.R")
-```
+#| echo: false
+#| include: false
 
-2. The [US Census API User Guide](https://www.census.gov/content/dam/Census/data/developers/api-user-guide/api-user-guide.pdf)
-provides details on how to leverage this valuable resource. We are interested in vintage population estimates for years 2021 and 2022. From the documentation we find that the _endpoint_ is:
-
-
-```{r}
-url <- "https://api.census.gov/data/2021/pep/population"
-```
-
-Use the **httr2** package to construct the following GET request.
-
-```
-https://api.census.gov/data/2021/pep/population?get=POP_2020,POP_2021,NAME&for=state:*&key=YOURKEYHERE
-```
-
-Create an object called `request` of class `httr2_request` with this URL as an endpoint.
-Hint: Print out `request` to check that the URL matches what we want.
-
-```{r}
-#| message: false
-#| warning: false
-library(httr2)
-url <- "https://api.census.gov/data/2021/pep/population"
-request <- request(url) |> req_url_query(get = I("POP_2020,POP_2021,NAME"),
-                                         'for' = I("state:*"),
-                                         key = census_key)
-
-```
-
-3. Make a request to the US Census API using the `request` object. Save the response to and object named `response`. Check the response status of your request and make sure it was successful. You can learn about _status codes_ [here](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes).
-
-
-```{r}
-response <- request |> req_perform()
-```
-
-4. Use a function from the **httr2** package to determine the content type of your response.
-
-```{r}
-
-# Load the necessary package
-library(httr2)
-request |> req_perform() |> resp_content_type()
-
-```
-
-5. Use just one line of code and one function to extract the data into a matrix. 
-Hints: 1) Use the `resp_body_json` function. 2) The first row of the matrix will be the variable names and this OK as we will fix in the next exercise.
-
-```{r}
-library(dplyr)
-library(janitor)
+# Population Data Processing
+# Load required libraries
+library(readxl)
 library(tidyr)
-
-population <- response |> resp_body_json(simplifyVector = TRUE)
-print(population)
-```
-
-6. Examine the `population` matrix you just created. Notice that 1) it is not tidy, 2) the column types are not what we want, and 3) the first row is a header. Convert `population` to a tidy dataset. Remove the state ID column and change the name of the column with state names to `state_name`. Add a column with state abbreviations called `state`. Make sure you assign the abbreviations for DC and PR correctly. Hint: Use the **janitor** package to make the first row the header. 
-
-```{r}
-#| message: false
-#| warning: false
+library(dplyr)
+library(httr2)
 library(tidyverse)
 library(janitor)
-
-population <- response |> resp_body_json(simplifyVector = TRUE) |>
-  row_to_names(1) |>
-  as_tibble() |>
-  select(-state) |>
-  rename(state_name = NAME) |>
-  pivot_longer(-state_name, names_to = "year", values_to  = "population") |>
-  mutate(year = str_remove(year, "POP_")) |>
-  mutate(across(-state_name, as.numeric) |>
-  mutate(state = state.abb[match(state_name, state.name)]) |>
-  mutate(state = case_when(state_name == "Puerto Rico" ~ "PR",
-                           state_name == "District of Columbia" ~ "DC",
-                           .default=state)))
-population
-
-```
-
-7. As a check, make a barplot of states' 2020 and 2021 populations. Show the state names in the y-axis ordered by population size.  Hint: You will need to use `reorder` and use `facet_wrap`.
-
-```{r}
-#| message: false
-#| warning: false
-# population |> 
-  # reorder state
-  # assign aesthetic mapping
-  # use geom_col to plot barplot
-  # flip coordinates
-  # facet by year
-####
-
-population |>
-  ggplot(aes(x = reorder(state_name, population), y = population,fill = as.factor(year))) + 
-  geom_col() + 
-  coord_flip() +
-  facet_wrap(~ year) + 
-  labs(x = "State", y = "Population", title = "Population of States in 2020 and 2021")
-
-
-```
-
-
-8. The following URL:
-
-```{r}
-url <- "https://github.com/datasciencelabs/2024/raw/refs/heads/main/data/regions.json"
-```
-
-points to a JSON file that lists the states in the 10 Public Health Service (PHS) defined by CDC. We want to add these regions to the `population` dataset. To facilitate this create a data frame called `regions` that has two columns `state_name`, `region`, `region_name`. One of the regions has a long name. Change it to something shorter.
-
-```{r}
-#| message: false
-#| warning: false
+library(lubridate)
 library(jsonlite)
-library(purrr)
+
+
+file_path <- "../raw-data/NST-EST2024-POP.xlsx"
+
+data <- read_excel(file_path, sheet = "NST-EST2024-POP", skip = 3)
+
+colnames(data) <- c("Geographic_Area", "Base_2020", "2020", "2021", "2022", "2023", "2024")
+
+data <- data |>
+  filter(!is.na(Geographic_Area)) |>
+  filter(str_starts(Geographic_Area, "\\.")) |> 
+  mutate(Geographic_Area = str_replace(Geographic_Area, "^\\.", "")) |>
+  select(-Base_2020) # Drop the Base_2020 column
+
+population <- data |>
+  pivot_longer(cols = starts_with("20"), 
+               names_to = "year", 
+               values_to = "population") |>
+  rename(state_name = Geographic_Area) |>
+                mutate(state = case_when(
+                state_name == "District of Columbia" ~ "DC",
+                state_name == "Puerto Rico" ~ "PR",
+                TRUE ~ state.abb[match(state_name, state.name)]  # Use state.abb for other states
+              ))
+
+saveRDS(population, file = "../data/clean_population_2020_2024.rds")
+
+
+population_filtered <- population |>
+  mutate(state_name = reorder(state_name, population)) |>
+  ggplot(aes(x = population, y = state_name, fill = year)) +
+  geom_col() +
+  coord_flip() +
+  facet_wrap(~year, scales = "free_y") +
+  labs(title = "State Populations for 2021 and 2022",
+       x = "Population",
+       y = "State") +
+  theme_minimal()  +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+print(population_filtered)
+
+
+```
+
+```{r}
+#| echo: false
+#| include: false
+
+# Population Processing 
+url <- "https://github.com/datasciencelabs/2024/raw/refs/heads/main/data/regions.json"
 regions <- fromJSON(url, simplifyDataFrame = FALSE)
-regions <- map_df(regions, function(x)
-    data.frame(region = x$region, region_name = x$region_name, state_name = x$states)) |>
-    mutate(region_name = ifelse(region_name == "New York and New Jersey, Puerto Rico, Virgin Islands", "NY and NJ, PR, VI", region_name))
-print(regions)
+regions <- map_df(regions, function(x) 
+  data.frame(region=x$region, region_name = x$region_name, state_name = x$states))
+regions$region_name <- gsub("New York and New Jersey, Puerto Rico, Virgin Islands", "NY & NJ & PR & VI",regions$region_name)
+
+population <- population |>
+  left_join(regions, by = "state_name")
+
+print(population) 
+
+
+
 
 ```
 
-9. Add a region and region name columns to the `population` data frame.
-
 ```{r}
-population <- left_join(population, regions, by = "state_name")
-
-print(population)
-```
+#| echo: false
+#| include: false
 
 
-10. From reading <https://data.cdc.gov/> we learn the endpoint `https://data.cdc.gov/resource/pwn4-m3yp.json` provides state level data from SARS-COV2 cases. Use the **httr2** tools you have learned to download this into a data frame. Is all the data there? If not, comment on why.
-
-
-```{r}
-
+# case processing
 api <- "https://data.cdc.gov/resource/pwn4-m3yp.json"
-cases_raw <- request(api) |> 
-  req_perform() |> 
+response <- request(api) |> 
+  req_url_query(`$limit` = 10000000000) |>
+  req_perform()                       
+
+cases_raw <- response |> 
   resp_body_json(simplifyVector = TRUE) |> 
   as_tibble()
-print(cases_raw)
-
-```
-
-No, this is not all the data here. Because the CDC has a default limit. We see exactly 1,000 rows. We should be seeing over $52 \times 3$ rows per state.
-
-11. The reason you see exactly 1,000 rows is because CDC has a default limit. You can change this limit by adding `$limit=10000000000` to the request. Rewrite the previous request to ensure that you receive all the data. Then wrangle the resulting data frame to produce a data frame with columns `state`, `date` (should be the end date) and `cases`. Make sure the cases are numeric and the dates are in `Date` ISO-8601 format.
-
-```{r}
-
-api <- "https://data.cdc.gov/resource/pwn4-m3yp.json?$limit=1000000000"
-cases_raw <- request(api) |> 
-  req_perform() |> 
-  resp_body_json(simplifyVector = TRUE) |> 
-  as_tibble()
-  
-cases <- cases_raw |> mutate(date = as.Date(end_date),cases = as.numeric(new_cases)) |> select(state, date, cases)
 
 print(cases_raw)
 
-print(cases)
+cases_clean <- cases_raw |> 
+  select(state, end_date, new_cases) |>             
+  rename(date = end_date, cases = new_cases) |>     
+  mutate(
+    cases = as.numeric(cases),                     
+    date = as.Date(date)                         
+  )
+
+death_clean <- cases_raw |> 
+  select(state, end_date, new_deaths) |>             
+  rename(date = end_date, deaths = new_deaths) |>     
+  mutate(
+    deaths = as.numeric(deaths),                     
+    date = as.Date(date)                         
+  )
+
+
+print(cases_clean)
+print(death_clean)
+
+
+
 
 ```
 
-
-12. For 2020 and 2021, make a time series plot of cases per 100,000 versus time for each state. Stratify the plot by region name. Make sure to label you graph appropriately. 
-
 ```{r}
-#| message: false
-#| warning: false
-cases |> 
-  filter(year(date) %in% c(2020, 2021)) |>
-  mutate(year = year(date))|> 
-  left_join(population, by=c("state",'year')) |>
-  mutate(cases_per_100k = (cases / population) * 100000)|>
-  filter(!is.na(cases_per_100k))|>
-  ggplot(aes(x = date, 
-             y = cases_per_100k, 
-             color = state)) +
-  geom_line()+
-  facet_wrap(~region_name,ncol = 3, scales = "free_y") +
-  labs(title = "COVID-19 Cases per 100,000 by State and Region (2020-2021)", x = "Date", y = "Cases per 100,000 People") +
+#| echo: false
+#| include: false
+
+
+# Join
+cases <- cases_clean |>
+  left_join(population, by = "state") |>            
+  mutate(cases_per_100k = (cases / population) * 100000) |> 
+  filter(!is.na(cases_per_100k))   
+
+cases <- cases |>
+  mutate(date_year = lubridate::year(as.Date(date))) |> 
+  filter(date_year == year) 
+
+death <- death_clean |>
+  left_join(population, by = "state") |>            
+  mutate(deaths_per_100k = (deaths / population) * 100000) |> 
+  filter(!is.na(deaths_per_100k)) 
+
+death <- death |>
+  mutate(date_year = lubridate::year(as.Date(date))) |> 
+  filter(date_year == year) 
+
+
+ggplot(cases, aes(x = date, y = cases_per_100k, color = state_name)) +
+  geom_line() +                                           
+  facet_wrap(~ region_name, scales = "free_y") +         
+  labs(
+    x = "Date",
+    y = "Cases per 100,000",
+    color = "State"
+  ) +
   theme_minimal() +
-  theme(legend.position = "none")
+    theme(
+    legend.position = "bottom",                          
+    legend.key.size = unit(0.2, "cm"),                    
+    legend.text = element_text(size = 7),                
+    axis.text.x = element_text(angle = 45, hjust = 1)     
+  )
+
+```
+
+```{r}
+#| echo: false
+#| include: false
+
+# Wave
+library(ggplot2)
+library(dplyr)
+library(patchwork)
+
+deaths <- death |> mutate(deaths = ifelse(deaths < 0, NA, deaths))
+cases <- cases |> mutate(date = as.Date(date))
+deaths <- deaths |> mutate(date = as.Date(date))
+
+
+# Identity wave period
+results <- deaths |>
+  left_join(cases, by = "date") |>
+  mutate(period = case_when(
+    date >= as.Date("2020-03-15") & date <= as.Date("2020-06-01") ~ "Wave1",
+    date >= as.Date("2020-06-15") & date <= as.Date("2020-10-01") ~ "Wave2",
+    date >= as.Date("2020-11-15") & date <= as.Date("2021-04-15") ~ "Wave3",
+    date >= as.Date("2021-07-15") & date <= as.Date("2021-10-30") ~ "Wave4",
+    date >= as.Date("2021-12-01") & date <= as.Date("2022-04-01") ~ "Wave5",
+    date >= as.Date("2021-05-15") & date <= as.Date("2022-10-01") ~ "Wave6"
+  )) |> 
+  filter(!is.na(period)) |>
+  group_by(period) |> 
+  summarise(
+    peak_death = max(deaths, na.rm = TRUE),              
+    peak_date_death = date[which.max(deaths)],           
+    peak_cases = max(cases, na.rm = TRUE),                 
+    peak_date_cases = date[which.max(cases)]           
+  )
+
+# Print the results
+print(results)
+
+print(results)
+
+```
+
+```{r}
+#| echo: false
+library(ggplot2)
+library(dplyr)
+library(patchwork)
+
+cases_plot <- ggplot(cases, aes(x = date, y = cases)) +
+  geom_line(color = "blue", size = 1) +
+  labs(
+    title = "COVID-19 Cases Trend (2020-2024)",
+    x = "Date",
+    y = "Total COVID-19 Cases"
+  ) +
+  theme_minimal() + 
+  theme(plot.title = element_text(hjust = 0.5))
+
+deaths_plot <- ggplot(deaths, aes(x = date, y = deaths)) +
+  geom_line(color = "#FF69B4", size = 1) +
+  labs(
+    title = "COVID-19 Mortality Trend (2020-2024)",
+    x = "Date",
+    y = "Total COVID-19 Mortality"
+  ) +
+  theme_minimal() + 
+  theme(plot.title = element_text(hjust = 0.5))
+
+# Define time periods for waves
+time_periods <- data.frame(
+  period = c("Wave1", "Wave2", "Wave3", "Wave4", "Wave5", "Wave6"),
+  start_date = as.Date(c("2020-03-15", "2020-06-15", "2020-11-15", "2021-07-15", "2021-12-01", "2022-05-15")),
+  end_date = as.Date(c("2020-06-01", "2020-10-01", "2021-04-15", "2021-10-30", "2022-04-01", "2022-10-01"))
+)
+
+# Add dashed rectangules
+deaths_plot <- deaths_plot +
+  geom_rect(
+    data = time_periods,
+    aes(
+      xmin = start_date,
+      xmax = end_date,
+      ymin = 0,
+      ymax = 4000,
+      color = period
+    ),
+    fill = NA,
+    size = 0.9,
+    inherit.aes = FALSE
+  ) +
+  scale_color_manual(
+    values = c(
+      "Wave1" = "#87CEEB",
+      "Wave2" = "#ff7f0e", 
+      "Wave3" = "#2ca02c",
+      "Wave4" = "#17becf",
+      "Wave5" = "#FFD700",
+      "Wave6" = "brown"
+    ),
+    name = "Time Periods"
+  ) +
+  theme(
+    legend.title = element_text(size = 12, face = "plain"),  
+    legend.text = element_text(size = 10),                
+    legend.key.size = unit(0.8, "cm"),           
+    legend.spacing.y = unit(0.3, "cm"),                 
+  )
+
+cases_plot <- cases_plot +
+  geom_rect(
+    data = time_periods,
+    aes(
+      xmin = start_date,
+      xmax = end_date,
+      ymin = 0,
+      ymax = 8*10**5,
+      color = period
+    ),
+    fill = NA,
+    size = 0.9,
+    inherit.aes = FALSE
+  ) +
+  scale_color_manual(
+    values = c(
+      "Wave1" = "#87CEEB",
+      "Wave2" = "#ff7f0e", 
+      "Wave3" = "#2ca02c",
+      "Wave4" = "#17becf",
+      "Wave5" = "#FFD700",
+      "Wave6" = "brown"
+    ),
+    name = "Time Periods"
+  ) +
+  theme(
+    legend.title = element_text(size = 12, face = "plain"),  
+    legend.text = element_text(size = 10),                
+    legend.key.size = unit(0.8, "cm"),           
+    legend.spacing.y = unit(0.3, "cm"),                 
+  )
+
+combined_plot <- cases_plot / deaths_plot
+print(combined_plot)
+
+anomalies <- deaths %>% filter(deaths < 0)
+#print(anomalies)
+
+
+```
+
+The COVID-19 case and mortality trends from 2020 to 2024 reveal six distinct waves, each varying in intensity and duration. Case trends show an initial gradual increase during Wave 1, followed by a sharp rise in Wave 2, peaking significantly in Wave 3, and then tapering into moderate peaks during Waves 4, 5, and 6. Mortality trends closely align with these waves, with the highest mortality observed in Wave 3, a noticeable decline in Wave 4, and relatively lower but steady levels in Waves 5 and 6. The provided charts highlight the temporal dynamics of the pandemic, illustrating the fluctuation of cases and mortality over time.
+
+```{r}
+#| include: false
+
+
+#Question2
+
+#Supplementary plots
+
+library(ggplot2)
+library(dplyr)
+
+deaths <- deaths |> mutate(date = as.Date(date))
+
+deaths <- deaths |> mutate(deaths_per_100k = ifelse(deaths_per_100k < 0, 0, deaths_per_100k))
+
+deaths <- deaths |>
+  mutate(
+    major_region = case_when(
+      region_name %in% c("New England", "Mid-Atlantic", "NY & NJ & PR & VI") ~ "Northeast",
+      region_name %in% c("Southeast", "South Central") ~ "South",
+      region_name %in% c("Pacific", "Pacific Northwest", "Mountain States") ~ "West",
+      region_name %in% c("Midwest", "Central Plains") ~ "Midwest",
+      TRUE ~ "Other"
+    )
+  )
+
+regions2 <- c("Northeast", "South", "West", "Midwest")
+
+for (i in regions2) {
+  region_data <- deaths |> filter(major_region == i)
+  
+  p <- ggplot(region_data, aes(x = date, y = deaths_per_100k, color = state_name)) +
+    geom_line(size = 1, alpha = 0.8) +
+    labs(
+      title = paste("Deaths per 100,000 in", i, "(2020-2024)"),
+      x = "Date",
+      y = "Deaths per 100,000",
+      color = "State"
+    ) +
+    theme_minimal() +
+    scale_x_date(date_breaks = "6 months", date_labels = "%b %Y")
+  
+  print(p)
+}
+
+
+
+```
+
+```{r}
+#| include: false
+
+# Supplementary plots for average death rate for each state
+deaths_table <- deaths |> 
+  mutate(date = as.Date(date)) |> 
+  mutate(deaths_per_100k = ifelse(deaths_per_100k < 0, 0, deaths_per_100k)) |> 
+  mutate(
+    wave = case_when(
+      date >= as.Date("2020-03-15") & date <= as.Date("2020-06-01") ~ "Wave1",
+      date >= as.Date("2020-06-15") & date <= as.Date("2020-10-01") ~ "Wave2",
+      date >= as.Date("2020-11-15") & date <= as.Date("2021-04-15") ~ "Wave3",
+      date >= as.Date("2021-07-15") & date <= as.Date("2021-10-30") ~ "Wave4",
+      date >= as.Date("2021-12-01") & date <= as.Date("2022-04-01") ~ "Wave5",
+      date >= as.Date("2021-05-15") & date <= as.Date("2022-10-01") ~ "Wave6",
+      TRUE ~ NA_character_
+    )
+  )
+
+deaths_table <- deaths_table |> filter(!is.na(wave))
+
+state_wave_summary <- deaths_table |> 
+  group_by(state_name, wave) |> 
+  summarise(
+    peak_death_rate = max(deaths_per_100k, na.rm = TRUE),  
+    avg_death_rate = mean(deaths_per_100k, na.rm = TRUE),  # Average death rate
+    total_deaths = sum(deaths, na.rm = TRUE),          
+    .groups = "drop"
+  )
+
+
+state_wave_summary <- state_wave_summary |> 
+  group_by(wave) |> 
+  mutate(
+    rank_peak = rank(-peak_death_rate),  
+    rank_avg = rank(-avg_death_rate),  
+    rank_total = rank(-total_deaths)  
+  ) |> 
+  ungroup()
+
+# Print summary table
+print(state_wave_summary)
+
+top_states_peak <- state_wave_summary |> 
+  group_by(wave) |> 
+  slice_min(rank_peak, n = 5) |> 
+  ungroup()
+
+top_5_avg_rank <- state_wave_summary |> 
+  group_by(wave) |> 
+  slice_min(order_by = rank_avg, n = 5) |> 
+  ungroup()
+
+ggplot(top_5_avg_rank, aes(x = reorder(state_name, rank_avg), y = avg_death_rate, fill = wave)) +
+  geom_col() +
+  facet_wrap(~wave, scales = "free") +
+  labs(
+    title = "Top 5 States by Average Death Rate During Each Wave",
+    x = "State",
+    y = "Average Death Rate (per 100,000)"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "bottom"
+  )
+```
+
+```{r}
+#| echo: false
+#| include: false
+
+# Filter to include only the bottom 5 states by average death rate for each wave
+bottom_5_avg_rank <- state_wave_summary |> 
+  group_by(wave) |> 
+  slice_max(order_by = rank_avg, n = 5) |>  # Select states with the highest rank_avg (lowest average death rate)
+  ungroup()
+
+# Plot lowest 5 states by average death rate for each wave
+ggplot(bottom_5_avg_rank, aes(x = reorder(state_name, avg_death_rate), y = avg_death_rate, fill = wave)) +
+  geom_col() +
+  facet_wrap(~wave, scales = "free") +
+  labs(
+    title = "Lowest 5 States by Average Death Rate During Each Wave",
+    x = "State",
+    y = "Average Death Rate (per 100,000)"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "bottom"
+  )
+
+```
+
+```{r}
+#Main Table - do not need to put in the report
+top_and_bottom_5_table <- state_wave_summary |> 
+  group_by(wave) |> 
+  slice_min(order_by = rank_avg, n = 5) |>  # Top 5 states (highest average death rate)
+  mutate(category = "Top 5 (Highest)") |>  # Add category for top 5
+  bind_rows(
+    state_wave_summary |> 
+      group_by(wave) |> 
+      slice_max(order_by = rank_avg, n = 5) |>  # Lowest 5 states (lowest average death rate)
+      mutate(category = "Bottom 5 (Lowest)")  # Add category for bottom 5
+  ) |> 
+  ungroup() |> 
+  arrange(wave, category, rank_avg)  # Sort by wave, category, and rank
+
+
+```
+
+```{r}
+#| echo: false
+#| include: false
+top_and_bottom_5_avg_rank <- state_wave_summary |> 
+  group_by(wave) |> 
+  slice_min(order_by = rank_avg, n = 5) |>  # States with the smallest rank_avg are "top" (lowest rank number)
+  mutate(rank_category = "Worst 5 (Highest)") |> 
+  bind_rows(
+    state_wave_summary |> 
+      group_by(wave) |> 
+      slice_max(order_by = rank_avg, n = 5) |>  # States with the largest rank_avg are "bottom"
+      mutate(rank_category = "Best 5 (Lowest)")
+  ) |> 
+  ungroup() |> 
+  arrange(wave, rank_category, rank_avg)
+```
+
+Task 2
+
+For each period compute the deaths rates by state. Describe which states did better or worse during the different periods.
+
+```{r}
+#| echo: false
+
+library(tidytext)
+
+ggplot(top_and_bottom_5_avg_rank, aes(x = reorder_within(state_name, avg_death_rate, wave), 
+                                      y = avg_death_rate, 
+                                      fill = rank_category)) +
+  geom_col() +
+  facet_wrap(~wave, scales = "free") +
+  scale_x_reordered() +
+  scale_fill_manual(
+    values = c("Worst 5 (Highest)" = "#FF69B4", "Best 5 (Lowest)" = "blue"),
+    name = "Category"
+  ) +
+  labs(
+    title = "Best and Worst 5 States by Average Death Rate During Each Wave",
+    x = "State",
+    y = "Average Death Rate (per 100,000)"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.text.y = element_text(size = 10),
+    legend.position = "bottom",
+    strip.text = element_text(size = 10, face = "bold"),
+    plot.title = element_text(size = 12, face = "bold", hjust = 0.5)
+  )
+
+```
+
+During Wave 1, Northeastern states such as New Jersey, Connecticut, and Massachusetts had the highest death rates, while states like Hawaii, Alaska, and Montana, with smaller populations and lower densities, experienced the lowest rates. In Wave 2, Southern states including Mississippi, Arizona, and Louisiana performed the worst, whereas states like Vermont, Maine, and Wyoming fared better with the lowest death rates. Wave 3 saw high death rates in Midwest and Southern states such as South Dakota, Arizona, and Alabama, while coastal states like Hawaii, Vermont, and Washington reported the lowest rates. During Wave 4, states like Florida, Mississippi, and Oklahoma struggled the most, but Northeastern regions such as New York, New Hampshire, and the District of Columbia continued to maintain low death rates. In Wave 5, states in the Midwest and Mountain West, including Tennessee, West Virginia, and Michigan, had the highest death rates, while Massachusetts, Puerto Rico, and Hawaii were among the lowest. Finally, Wave 6 highlighted states such as New Mexico, Kentucky, and West Virginia with the worst outcomes, while states like New York, Hawaii, and Rhode Island continued to perform well with the lowest death rates.
+
+```{r}
+#| include: false
+library(dplyr)
+library(lubridate)
+
+# Question3
+
+wave_definitions <- tibble(
+  wave = c("Wave1", "Wave2", "Wave3", "Wave4", "Wave5", "Wave6"),
+ start_date = as.Date(c("2020-03-15", "2020-06-15", "2020-11-15", "2021-07-15", "2021-12-01", "2022-05-15")),
+  end_date = as.Date(c("2020-06-01", "2020-10-01", "2021-04-15", "2021-10-30", "2022-04-01", "2022-10-01"))
+)
+
+add_wave <- function(df, wave_df) {
+  df %>%
+    rowwise() %>%
+    mutate(wave = {
+      inds <- which(date >= wave_df$start_date & date <= wave_df$end_date)
+      if (length(inds) == 1) {
+        wave_df$wave[inds]
+      } else {
+        NA_character_  
+      }
+    }) %>%
+    ungroup()
+}
+
+cases_with_wave <- add_wave(cases, wave_definitions)
+deaths_with_wave <- add_wave(deaths, wave_definitions)
+
+
+cases_with_wave <- cases_with_wave %>%
+  select(date, wave, cases_per_100k) %>%
+  rename(value = cases_per_100k) %>%
+  mutate(type = "Cases")
+
+deaths_with_wave <- deaths_with_wave %>%
+  select(date, wave, deaths_per_100k) %>%
+  rename(value = deaths_per_100k) %>%
+  mutate(type = "Deaths")
+
+library(patchwork)
+
+
+
+combined_data <- bind_rows(cases_with_wave, deaths_with_wave)
+
+combined_data_filtered <- combined_data |>
+  filter(!is.na(wave))
+
+ggplot(combined_data_filtered, aes(x = date, y = value, color = wave)) +
+  geom_line(alpha = 0.7, size = 1) +
+  scale_color_brewer(palette = "Set1") +
+  labs(
+    title = "COVID-19 Cases and Mortality with Waves",
+    x = "Date",
+    y = "Count",
+    color = "Wave"
+  ) +
+  facet_wrap(~type, scales = "free_y") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    strip.text = element_text(size = 12, face = "bold")
+  )
+
+
+
+
+```
+Task 3
+
+The fatality ratios (deaths per 100 cases) across the six COVID-19 waves show a decreasing trend over time. Wave 1 has the highest fatality ratio at 5.36%, followed by a significant drop in Wave 2 to 1.63%. Wave 3 records a slightly lower fatality ratio of 1.53%, while Wave 4 continues the decline to 1.08%. Waves 5 and 6 show further reductions, with fatality ratios of 0.64% and 0.42%, respectively. This table reflects the variation in fatality ratios across the waves.
+```{r}
+
+#| echo: false
+
+# Compute fatality ratio (deaths per 100 cases)
+# (deaths per 100 cases)
+fatality_data <- combined_data_filtered |>
+  group_by(wave, type) |>
+  summarize(total = sum(value, na.rm = TRUE), .groups = "drop")
+
+fatality_ratio_by_wave <- fatality_data |>
+  pivot_wider(names_from = type, values_from = total) |>
+  mutate(
+    fatality_ratio = (Deaths / Cases) * 100  # Calculate fatality ratio as percentage
+  ) |>
+  select(wave, fatality_ratio) |> 
+  arrange(wave) 
+
+# Print the resulting table
+print(fatality_ratio_by_wave)
+
+```
+
+```{r}
+#| echo: false
+#| include: false
+
+ggplot(fatality_ratio_by_wave, aes(x = wave, y = fatality_ratio, group = 1)) +
+  geom_line(color = "#FF5733", size = 1.2) +
+  geom_point(color = "#FF5733", size = 3) +
+  geom_text(aes(label = paste0(round(fatality_ratio, 2), "%")), 
+            vjust = -1.2, color = "black", size = 4) +  
+  scale_y_continuous(expand = expansion(mult = c(0.05, 0.15))) +  
+  labs(
+    title = "Fatality Ratio (Deaths per 100 Cases) by Wave",
+    x = "Wave",
+    y = "Fatality Ratio (%)"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 14),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    axis.title.x = element_text(size = 12),
+    axis.title.y = element_text(size = 12)
+  )
+```
+
+```{r}
+
+#| echo: false
+#| include: false
+
+# Question4
+
+# population processing
+
+data_2010_2020 <- read_excel("../raw-data/nst-est2020int-pop.xlsx", skip = 3)
+
+colnames(data_2010_2020 ) <- c("Geographic_Area", "Base_2010",  "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+
+data_2010_2020 <- data_2010_2020  |>
+  filter(!is.na(Geographic_Area)) |>
+  filter(str_starts(Geographic_Area, "\\.")) |> 
+  mutate(Geographic_Area = str_replace(Geographic_Area, "^\\.", "")) |>
+  select(-Base_2010) 
+
+population_2010 <- data_2010_2020  |>
+  pivot_longer(cols = starts_with("20"), 
+               names_to = "year", 
+               values_to = "population") |>
+  rename(state_name = Geographic_Area) |>
+                mutate(state = case_when(
+                state_name == "District of Columbia" ~ "DC",
+                state_name == "Puerto Rico" ~ "PR",
+                TRUE ~ state.abb[match(state_name, state.name)]  # Use state.abb for other states
+              ))
+saveRDS(population_2010, file = "../data/clean_population_2010_2019.rds")
+
+
+
+```
+
+```{r}
+
+#| echo: false
+#| include: false
+#| warning: false
+
+data <- read_csv("../raw-data/Weekly_Counts_of_Deaths_by_Jurisdiction_and_Age_20241220.csv")
+
+extracted_data <- data %>%
+  select(state = `State Abbreviation`, date = `Week Ending Date`, deaths = `Number of Deaths`)
+
+extracted_data$date <- as.Date(extracted_data$date, format = "%m/%d/%Y")
+
+extracted_data = extracted_data |>
+  group_by(state,date) |>
+  summarise(deaths = sum(deaths,na.rm=TRUE)) |>
+  ungroup()
+
+saveRDS(extracted_data, file = "../data/clean_weekly_counts_of_deaths.rds")
+
+population_2010 <- population_2010 |>
+  left_join(regions, by = "state_name")
+
+
+death_2015 <- extracted_data |>
+  left_join(population_2010, by = "state") |>            
+  mutate(deaths_per_100k = (deaths / population) * 100000) |> 
+  filter(!is.na(deaths_per_100k)) 
+
+
+death_2015 <- death_2015 |>
+  mutate(date_year = lubridate::year(as.Date(date))) |> 
+  filter(date_year == year) 
+
+
+
+#print(death_2015)
+
+
+
+  
+
+```
+
+```{r}
+#| echo: false
+#| include: false
+
+# prediction
+
+library(lubridate)
+death_2015 <- death_2015 |>
+  mutate(week = isoweek(date), year = year(date))
+
+deaths <- deaths |>
+  mutate(week = isoweek(date), year = year(date))
+
+
+historical_data <- death_2015 |> filter(year < 2020)
+
+print(historical_data)
+
+population_model <- historical_data |>
+  group_by(state) |>
+  do(model = lm(deaths_per_100k ~ poly(week, degree = 2) + year, data = .))
+
+future_weeks <- expand.grid(
+  state = unique(historical_data$state),
+  year = 2020:2024,
+  week = 1:52
+)
+
+predicted_data <- population_model |>
+  rowwise() |>
+  do(data.frame(
+    state = .$state,
+    year = future_weeks$year,
+    week = future_weeks$week,
+    predicted_deaths_per_100k = predict(.$model, newdata = future_weeks)
+  ))
+
+
+predicted_data <- predicted_data |> distinct()
+
+print(predicted_data)
+
+extracted_data_2020 = extracted_data  |> 
+  rename(real_death=deaths) |> 
+  mutate(week = isoweek(date), year = year(date)) |> 
+  filter(year>2019) |> select(-date)
+
+deaths = deaths |>
+  left_join(extracted_data_2020, by = c("week","year","state")) |>
+  mutate(real_deaths_per_100k = (real_death / population) * 100000) |> 
+  filter(!is.na(real_deaths_per_100k)) 
+
+
+merged_death_2020_after_prediction <- deaths |>
+  left_join(predicted_data, by = c("state", "year", "week"))
+
+merged_death_2020_after_prediction <- merged_death_2020_after_prediction |>
+  mutate(excess_mortality = real_deaths_per_100k - predicted_deaths_per_100k)
+
+
+ggplot(merged_death_2020_after_prediction, aes(x = week, y = excess_mortality, color = state_name, group = state_name)) +
+  geom_line(size = 1) +
+  geom_point(size = 2) +
+  labs(
+    title = "Excess Mortality Trend by State",
+    x = "Date",
+    y = "Excess Mortality",
+    color = "State"
+  ) +
+  theme_minimal() +
+  theme(
+  )
+
+```
+
+Task 4
+
+To investigate the relationship between excess mortality and COVID-19 deaths across different pandemic waves, we conducted a Chi-square test for each wave to test the null hypothesis that the distribution of excess mortality aligns with the distribution of COVID-19 deaths. Table 2 demonstrates variability in the results across the six waves. For Wave 1, the p-value was 0.8026, indicating that we fail to reject the null hypothesis. In contrast, for Waves 2 through 6, the p-values were all significantly below 0.05, leading to rejection of the null hypothesis.
+
+```{r}
+
+#| echo: false
+#|  warning: false
+
+# confidence
+#correlation <- cor(merged_death_2020_after_prediction$excess_mortality, merged_death_2020_after_prediction$deaths_per_100k, method = "pearson")
+
+
+
+ggplot(merged_death_2020_after_prediction, aes(x = deaths_per_100k, y = excess_mortality)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = TRUE, color = "blue") +
+  labs(title = "Relationship between COVID Deaths and Excess Mortality",
+       x = "COVID Deaths",
+       y = "Excess Mortality")
+
+
+model <- lm(excess_mortality ~ deaths_per_100k, data = merged_death_2020_after_prediction)
+
+
+#summary(model)
+#print(paste("Pearson correlation coefficient:", correlation))
+
+#coef(model)  
+#confint(model)  
+
+
+```
+Moreover, the results of our linear model reveal a moderate positive correlation between COVID-specific deaths per 100,000 and excess mortality, with a Pearson correlation coefficient of 0.677, illustrating that the excess mortality increases as Covid-19 deaths increase. A linear regression model further confirms this relationship, showing that each additional COVID-specific death per 100,000 is associated with an increase of 1.642 in excess mortality per 100,000 (p \< 2e-16), with an intercept of 1.533 (p \< 2e-16). The model explains 45.78% of the variance in excess mortality, as indicated by an adjusted R-squared value of 0.4578, and has a residual standard error of 4.245. The 95% confidence interval for the deaths_per_100k coefficient ranges from 1.605 to 1.680, confirming the precision of the estimate. Supporting visuals include scatterplots illustrating the relationship between COVID-specific deaths and excess mortality, with a regression line depicting the trend, and weekly excess mortality trends highlighting temporal and geographic variability.
+```{r}
+#| echo: false
+#| warning: false
+
+# Chi-square Test: for each wave
+# H0: the excess mortality follows the covid-19 death distributions.
+
+library(dplyr)
+
+merged_death_2020_after_prediction <- merged_death_2020_after_prediction %>%
+  mutate(wave = case_when(
+    between(date, wave_definitions$start_date[1], wave_definitions$end_date[1]) ~ "Wave1",
+    between(date, wave_definitions$start_date[2], wave_definitions$end_date[2]) ~ "Wave2",
+    between(date, wave_definitions$start_date[3], wave_definitions$end_date[3]) ~ "Wave3",
+    between(date, wave_definitions$start_date[4], wave_definitions$end_date[4]) ~ "Wave4",
+    between(date, wave_definitions$start_date[5], wave_definitions$end_date[5]) ~ "Wave5",
+    between(date, wave_definitions$start_date[6], wave_definitions$end_date[6]) ~ "Wave6",
+    TRUE ~ NA_character_
+  )) %>%
+  filter(!is.na(wave))
+
+filtered_data <- merged_death_2020_after_prediction %>%
+  filter(excess_mortality > 0 & deaths_per_100k > 0)
+
+grouped_data <- filtered_data %>%
+  group_by(state, wave) %>%
+  summarize(
+    total_excess_mortality = sum(excess_mortality),
+    total_covid19_deaths = sum(deaths_per_100k),
+    .groups = "drop"
+  )
+
+
+chi_square_results <- grouped_data %>%
+  group_by(wave) %>%
+  group_split() %>%
+  map_df(~ {
+    wave_data <- .
+    
+    contingency_table <- wave_data %>%
+      select(total_excess_mortality, total_covid19_deaths) %>%
+      as.matrix()
+
+    if (nrow(contingency_table) > 1 && ncol(contingency_table) == 2) {
+      chi_test <- chisq.test(contingency_table)
+      
+      data.frame(
+        wave = unique(wave_data$wave),
+        chi_square_statistic = chi_test$statistic,
+        p_value = chi_test$p.value,
+        degrees_of_freedom = chi_test$parameter
+      )
+    } else {
+      data.frame(
+        wave = unique(wave_data$wave),
+        chi_square_statistic = NA,
+        p_value = NA,
+        degrees_of_freedom = NA
+      )
+    }
+  })
+
+
+print(chi_square_results)
+```
+
+```{r}
+#| echo: false
+#| include: false
+
+# Question5
+library(ggplot2)
+library(dplyr)
+
+
+
+for (i in regions2) {
+  region_data <- merged_death_2020_after_prediction |> filter(major_region == i)
+  
+  p <- ggplot(region_data, aes(x = date, y = excess_mortality, color = state_name)) +
+    geom_line(size = 1, alpha = 0.8) +
+    labs(
+      title = paste("excess_mortality per 100,000 in", i, "(2020-2024)"),
+      x = "Date",
+      y = "Deaths per 100,000",
+      color = "State"
+    ) +
+    theme_minimal() +
+    scale_x_date(date_breaks = "6 months", date_labels = "%b %Y")
+  
+  print(p)
+}
+```
+Task 5
+
+The results show the top five states with the highest average excess mortality per 100,000 population ("Worst 5") and the bottom five states with the lowest average excess mortality ("Best 5") across six defined COVID-19 waves. In Wave 1, New Jersey had the highest excess mortality, while Hawaii had the lowest. During Wave 2, Mississippi ranked highest, with Hawaii again ranking lowest. In Wave 3, Mississippi remained the state with the highest excess mortality, while Hawaii and Puerto Rico exhibited the lowest levels. Wave 4 showed Alaska, Mississippi, and West Virginia with the highest excess mortality, while New Jersey and Massachusetts had the lowest. Wave 5 featured West Virginia, New Mexico, and Kentucky as the states with the highest excess mortality, with Puerto Rico and Hawaii showing the lowest. In Wave 6, Alaska exhibited the highest excess mortality, while Rhode Island had the lowest. These trends are clearly illustrated in the bar chart, which presents the average excess mortality for each state by wave, categorized into the "Worst 5 (Highest)" and "Best 5 (Lowest)" groups, enabling direct comparison across different periods and regions.
+```{r}
+#| echo: false
+wave_definitions <- tibble(
+  wave = c("Wave1", "Wave2", "Wave3", "Wave4", "Wave5", "Wave6"),
+  start_date = as.Date(c("2020-03-15", "2020-06-15", "2020-11-15", "2021-07-15", "2021-12-01", "2022-05-15")),
+  end_date = as.Date(c("2020-06-01", "2020-10-01", "2021-04-15", "2021-10-30", "2022-04-01", "2022-10-01"))
+)
+
+merged_death_2020_after_prediction <- merged_death_2020_after_prediction %>%
+  mutate(wave = case_when(
+    between(date, wave_definitions$start_date[1], wave_definitions$end_date[1]) ~ "Wave1",
+    between(date, wave_definitions$start_date[2], wave_definitions$end_date[2]) ~ "Wave2",
+    between(date, wave_definitions$start_date[3], wave_definitions$end_date[3]) ~ "Wave3",
+    between(date, wave_definitions$start_date[4], wave_definitions$end_date[4]) ~ "Wave4",
+    between(date, wave_definitions$start_date[5], wave_definitions$end_date[5]) ~ "Wave5",
+    between(date, wave_definitions$start_date[6], wave_definitions$end_date[6]) ~ "Wave6",
+    TRUE ~ NA_character_
+  )) %>%
+  # Remove rows that have no wave assigned
+  filter(!is.na(wave))
+
+# Identify the top 5 and bottom 5 states for each wave by excess mortality
+top_and_bottom_5_excess <- merged_death_2020_after_prediction %>%
+  group_by(wave, state_name) %>%
+  summarize(avg_excess_mortality = mean(excess_mortality, na.rm = TRUE), .groups = "drop") %>%
+  group_by(wave) %>%
+  mutate(
+    rank = rank(-avg_excess_mortality),
+    rank_category = case_when(
+      rank <= 5 ~ "Worst 5 (Highest)",
+      rank > n() - 5 ~ "Best 5 (Lowest)",
+      TRUE ~ NA_character_
+    )
+  ) %>%
+  filter(!is.na(rank_category))
+
+# Plot the top and bottom 5 states by excess mortality
+ggplot(top_and_bottom_5_excess, aes(x = reorder_within(state_name, avg_excess_mortality, wave), 
+                                    y = avg_excess_mortality, 
+                                    fill = rank_category)) +
+  geom_col() +
+  facet_wrap(~wave, scales = "free") +
+  scale_x_reordered() +
+  scale_fill_manual(
+    values = c("Worst 5 (Highest)" = "#FF69B4", "Best 5 (Lowest)" = "blue"),
+    name = "Category"
+  ) +
+  labs(
+    title = "Best and Worst 5 States by Average Excess Mortality During Each Wave",
+    x = "State",
+    y = "Average Excess Mortality (per 100,000)"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.text.y = element_text(size = 10),
+    legend.position = "bottom",
+    strip.text = element_text(size = 10, face = "bold"),
+    plot.title = element_text(size = 12, face = "bold", hjust = 0.5)
+  )
+
 
 ```
 
 
+#### 
 
+## **Discussion**
 
+Task 1
 
+The results highlight the evolving dynamics of the COVID-19 pandemic, shaped by public health measures, vaccination efforts, and viral mutations. The sharp rise in cases and mortality during Wave 3 reflects a critical period when the healthcare system was overwhelmed and vaccination efforts were still ramping up. The subsequent decline in mortality in Waves 4, 5, and 6, despite continued case fluctuations, underscores the effectiveness of vaccines, improved treatments, and increased immunity. These trends illustrate the transition from a high-mortality pandemic phase to a more controlled but persistent presence of the virus, influenced by policy decisions and population behavior
+
+Task 2
+
+The results reflect how geographic, demographic, and systemic factors influenced the distribution of COVID-19 death rates across different regions and waves. In early waves, densely populated Northeastern states experienced the highest death rates, likely due to the rapid initial spread of the virus and overwhelmed healthcare systems. By Wave 2, the focus shifted to the South, where structural healthcare disparities and resistance to public health measures may have exacerbated outcomes. Wave 3 marked a turning point, with Midwest and Southern states bearing the brunt, potentially due to a combination of surging variants, winter conditions favoring transmission, and vaccine rollout delays. As vaccination efforts expanded and treatment protocols improved, later waves showed a notable shift. Death rates in traditionally high-risk regions like the Northeast declined significantly, suggesting the impact of better healthcare access and higher vaccine uptake. Conversely, states in the South, Midwest, and Mountain West continued to struggle in Waves 4 through 6, where structural healthcare weaknesses and vaccine hesitancy likely played a role. Overall, the data underscores how public health infrastructure, demographic factors, and behavioral responses influenced regional outcomes, with states demonstrating varied capacities to adapt to the evolving challenges of the pandemic.
+
+Task 3
+
+The decreasing fatality ratios across the six COVID-19 waves indicate that the virus became less virulent over time, with Wave 1 showing the highest fatality ratio (5.36%) and Wave 6 the lowest (0.42%). This trend likely reflects advancements in treatments, widespread vaccination, and increased population immunity. It may also suggest that later variants, while more transmissible, caused less severe disease. However, variations in testing rates, healthcare access, and reporting practices could have influenced these results. These findings emphasize the importance of continued public health efforts and research to understand and respond to evolving disease dynamics.
+
+Task 4
+
+COVID-19 deaths partially explain excess mortality, as evidenced by the statistically significant positive relationship between COVID-19 death rates and excess mortality in the regression analysis. The coefficient of 1.642 indicates that for every additional COVID-19 death per 100,000 people, excess mortality increases by 1.642 per 100,000 on average. However, the low R-squared value (0.4578) suggests that COVID-19 deaths account for only a portion of the variation in excess mortality. The p-value patterns across different pandemic waves further illuminate this complexity. In addition, base on results of chi-square test. During Wave 1, the distribution of excess mortality closely aligned with COVID-19 deaths, suggesting that COVID-19 was the primary driver of excess mortality. However, in later waves, other factors likely influenced the divergence between excess mortality and COVID-19 deaths. These include indirect deaths caused by delayed healthcare access, mental health crises, and economic disruptions. The divergence in later waves underscores the complexity of excess mortality trends, with a significant role played by factors beyond direct COVID-19 deaths, such as healthcare system overload and severe complications of COVID-19. While COVID-19 deaths are an important driver, other covariates such as demographic factors, socioeconomic conditions, and state-level interventions likely play a significant role in shaping excess mortality. These findings underscore the need for more comprehensive models to fully explain the observed trends and inform public health policy during pandemics and similar crises.
+
+Task 5
+
+Our analysis of excess mortality across the six COVID-19 waves reveals notable patterns in state-level outcomes. In Wave 1, New Jersey experienced the highest excess mortality, reflecting the early severity of the pandemic in densely populated regions, while Hawaii’s geographic isolation likely contributed to its low rates. Mississippi consistently ranked among the worst-performing states in Waves 2 and 3, suggesting persistent vulnerabilities such as limited healthcare access or public health measures, whereas Hawaii and Puerto Rico maintained low mortality rates, demonstrating effective pandemic management. Wave 4 saw a shift, with Alaska and West Virginia showing the highest excess mortality, possibly due to healthcare access challenges in rural areas, while northeastern states like New Jersey and Massachusetts improved, benefiting from strong vaccination campaigns and public health measures. In Wave 5, states like West Virginia and New Mexico were among the worst, reflecting continued challenges in certain regions, while Puerto Rico and Hawaii again performed better, highlighting sustained resilience. By Wave 6, Alaska had the highest excess mortality, likely due to ongoing infrastructure challenges, while Rhode Island achieved the lowest rates, signaling effective public health strategies. These results emphasize the importance of state-level differences in healthcare capacity, public health policies, and geographic factors in shaping pandemic outcomes. They underscore the need for targeted interventions to address vulnerabilities and strengthen resilience during future health crises.
+
+## References
+
+-   JAMA, “2020 to January 2, 2021,” JAMA. \[Online\]. Available: <https://jamanetwork.com/journals/jama/fullarticle/2778361>
+
+-   E. Y. S. Chan *et al.*, “Impact of COVID-19 on excess mortality, life expectancy, and years of life lost in the United States,” *PLOS ONE*, 2021. \[Online\]. Available: <https://pubmed.ncbi.nlm.nih.gov/34469474/>
+
+-   U.S. Census Bureau, "NST-EST2024-POP: State Population Totals," 2024. \[Online\]. Available: <https://www.census.gov/data/tables/time-series/demo/popest/2020s-state-total.html>. \[Accessed: 20-Dec-2024\].
+
+-   U.S. Census Bureau, "Intercensal Estimates of the United States Population," 2020. \[Online\]. Available: <https://www.census.gov/data/tables/time-series/demo/popest/intercensal-2010-2020-national.html>. \[Accessed: 20-Dec-2024\].
+
+-   Data Science Labs, "Regional Groupings JSON File," GitHub, 2024. \[Online\]. Available: <https://github.com/datasciencelabs/2024/raw/refs/heads/main/data/regions.json>. \[Accessed: 20-Dec-2024\].
+
+-   Centers for Disease Control and Prevention, "COVID-19 Cases and Deaths by State," CDC API, 2024. \[Online\]. Available: <https://data.cdc.gov/resource/pwn4-m3yp.json>. \[Accessed: 20-Dec-2024\].
+
+-   National Center for Health Statistics, "Weekly Counts of Deaths by Jurisdiction and Age," 2024. \[Online\]. Available: <https://data.cdc.gov/NCHS/Weekly-Counts-of-Deaths-by-Jurisdiction-and-Age/y5bj-9g5w/about_data>. \[Accessed: 20-Dec-2024\].
