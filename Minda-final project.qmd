@@ -798,6 +798,69 @@ confint(model)
 
 
 ```
+Chi-square Test: for each wave
+H0: the excess mortality follows the covid-19 death distributions.
+```{r}
+library(dplyr)
+
+merged_death_2020_after_prediction <- merged_death_2020_after_prediction %>%
+  mutate(wave = case_when(
+    between(date, wave_definitions$start_date[1], wave_definitions$end_date[1]) ~ "Wave1",
+    between(date, wave_definitions$start_date[2], wave_definitions$end_date[2]) ~ "Wave2",
+    between(date, wave_definitions$start_date[3], wave_definitions$end_date[3]) ~ "Wave3",
+    between(date, wave_definitions$start_date[4], wave_definitions$end_date[4]) ~ "Wave4",
+    between(date, wave_definitions$start_date[5], wave_definitions$end_date[5]) ~ "Wave5",
+    between(date, wave_definitions$start_date[6], wave_definitions$end_date[6]) ~ "Wave6",
+    TRUE ~ NA_character_
+  )) %>%
+  filter(!is.na(wave))
+
+filtered_data <- merged_death_2020_after_prediction %>%
+  filter(excess_mortality > 0 & deaths_per_100k > 0)
+
+grouped_data <- filtered_data %>%
+  group_by(state, wave) %>%
+  summarize(
+    total_excess_mortality = sum(excess_mortality),
+    total_covid19_deaths = sum(deaths_per_100k),
+    .groups = "drop"
+  )
+
+
+chi_square_results <- grouped_data %>%
+  group_by(wave) %>%
+  group_split() %>%
+  map_df(~ {
+    wave_data <- .
+    
+    contingency_table <- wave_data %>%
+      select(total_excess_mortality, total_covid19_deaths) %>%
+      as.matrix()
+
+    if (nrow(contingency_table) > 1 && ncol(contingency_table) == 2) {
+      chi_test <- chisq.test(contingency_table)
+      
+      data.frame(
+        wave = unique(wave_data$wave),
+        chi_square_statistic = chi_test$statistic,
+        p_value = chi_test$p.value,
+        degrees_of_freedom = chi_test$parameter
+      )
+    } else {
+      data.frame(
+        wave = unique(wave_data$wave),
+        chi_square_statistic = NA,
+        p_value = NA,
+        degrees_of_freedom = NA
+      )
+    }
+  })
+
+
+print(chi_square_results)
+```
+
+
 
 
 Question5

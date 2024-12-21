@@ -4,28 +4,20 @@ format: pdf
 editor: visual
 ---
 
-## Quarto
+## Visualizations
 
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+To address question 3, we present a detailed analysis of the characteristics of the COVID-19 virus across different waves. The first plot captures the declining trend in the fatality ratio (deaths per 100 cases) over time, providing evidence that COVID-19 became less virulent as the pandemic progressed.
 
-## Running Code
-
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
-
-```{r}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 library(magick)
-
-# 读取图片
-img <- image_read("Graph1.png")
-# 显示图片
-print(img)
+img1 <- image_read("q3_fatality_ratio.png")
+print(img1)
 ```
 
-You can add options to executable code like this
+The second plot illustrates the trends in COVID-19 cases and deaths across different wave periods. The data reveal that while the virus's fatality ratio decreased, the number of cases increased dramatically, particularly reaching its peak during wave 5. This plot suggests that the virus became more transmissible over time and peaked at wave 5, potentially due to the emergence of highly contagious variants.
 
-```{r}
-#| echo: false
-2 * 2
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+img2 <- image_read("Cases_Mortality_with_Waves.png")
+print(img2)
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
