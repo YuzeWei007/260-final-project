@@ -10,15 +10,14 @@ To address question 3, we present a detailed analysis of the characteristics of 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 library(magick)
-img <- image_read("q3_fatality_ratio.png")
-print(img)
+img1 <- image_read("q3_fatality_ratio.png")
+print(img1)
 ```
 
 The second plot illustrates the trends in COVID-19 cases and deaths across different wave periods. The data reveal that while the virus's fatality ratio decreased, the number of cases increased dramatically, particularly reaching its peak during wave 5. This plot suggests that the virus became more transmissible over time and peaked at wave 5, potentially due to the emergence of highly contagious variants.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-library(magick)
-img <- image_read("Cases_Mortality_with_Waves")
-print(img)
+img2 <- image_read("Cases_Mortality_with_Waves.png")
+print(img2)
 ```
 
