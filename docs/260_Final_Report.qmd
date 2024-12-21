@@ -51,9 +51,13 @@ To assess the relationship between excess mortality and COVID-related deaths, we
 
 Q5
 
+We began by cleaning the dataset to focus on relevant records, assigning each observation to a predefined wave (e.g., Wave1, Wave2) based on specific time intervals. Observations without a corresponding wave were removed to ensure consistency. We then grouped the data by wave and state, calculating the average excess mortality per 100,000 for each state during each wave. States were ranked within each wave based on their average excess mortality and categorized into the "Worst 5 (Highest)" and "Best 5 (Lowest)" states for further analysis.
+
+To analyze regional trends, we plotted excess mortality trends for each region from 2020 to 2024, highlighting state-level variations over time. Additionally, we visualized the rankings by creating a bar plot to showcase the top 5 states with the highest average excess mortality and the bottom 5 states with the lowest average excess mortality for each wave. This approach allowed us to systematically explore temporal and geographic patterns in excess mortality, providing insights into the states and regions most and least affected during each wave.
 
 
-Data Q123
+Dataset Description:
+Q 1,2,3
 
 1.Population data: Data source: NST-EST2024-POP.xlsx information about data collection source: data collected by U.S. Census Bureau. From website: https://www.census.gov/data/tables/time-series/demo/popest/2020s-state-total.html
 
@@ -63,7 +67,7 @@ data collection time frame: from 2020 to 2024. Provides annual state-level popul
 
 3.COVID-19 Cases and Death Data: Source: Centers for Disease Control and Prevention (CDC) API. data collection time frame: January 22, 2020, to May 10, 2023 API Endpoint: https://data.cdc.gov/resource/pwn4-m3yp.json. Description: Provides daily records of new COVID-19 cases and deaths at the state level from 2020 to 2024.
 
-Data Q45
+Q 4,5
 
 4.Weekly Counts of Deaths by Jurisdiction and Age Data: Data source: The dataset "Weekly Counts of Deaths by Jurisdiction and Age" is sourced from the National Center for Health Statistics (NCHS). Access URL: https://data.cdc.gov/NCHS/Weekly-Counts-of-Deaths-by-Jurisdiction-and-Age/y5bj-9g5w/about_data File used: Weekly_Counts_of_Deaths_by_Jurisdiction_and_Age_20241220.csv. Time period: The dataset covers weekly counts of deaths from January 10, 2015, to September 16, 2023. Description: This dataset provides weekly counts of deaths categorized by jurisdiction and age groups across the United States. It spans multiple years and is used to analyze trends in mortality, including patterns during significant public health events such as the COVID-19 pandemic.
 
@@ -121,6 +125,15 @@ print(img)
 
 Q5
 
+The results show the top five states with the highest average excess mortality per 100,000 population ("Worst 5") and the bottom five states with the lowest average excess mortality ("Best 5") across six defined COVID-19 waves. In Wave 1, New Jersey had the highest excess mortality, while Hawaii had the lowest. During Wave 2, Mississippi ranked highest, with Hawaii again ranking lowest. In Wave 3, Mississippi remained the state with the highest excess mortality, while Hawaii and Puerto Rico exhibited the lowest levels.
+
+Wave 4 showed Alaska, Mississippi, and West Virginia with the highest excess mortality, while New Jersey and Massachusetts had the lowest. Wave 5 featured West Virginia, New Mexico, and Kentucky as the states with the highest excess mortality, with Puerto Rico and Hawaii showing the lowest. In Wave 6, Alaska exhibited the highest excess mortality, while Rhode Island had the lowest. These trends are clearly illustrated in the bar chart, which presents the average excess mortality for each state by wave, categorized into the "Worst 5 (Highest)" and "Best 5 (Lowest)" groups, enabling direct comparison across different periods and regions.
+
+```{r}
+library(magick)
+img <- image_read("graph3.png")
+print(img)
+```
 
 #### 
 
@@ -149,6 +162,12 @@ Q4 Estimate excess mortality for each week for each state. Do COVID-19 deaths ex
 COVID-19 deaths partially explain excess mortality, as evidenced by the statistically significant positive relationship between COVID-19 death rates and excess mortality in the regression analysis. The coefficient of 0.146 indicates that for every additional 10 COVID-19 deaths per 100,000 people, excess mortality increases by 1.46 per 100,000 on average. However, the low R2R\^2R2 value (0.03076) suggests that COVID-19 deaths account for only a small fraction of the variation in excess mortality. This is because excess mortality is a complex phenomenon influenced by multiple factors beyond direct COVID-19 deaths. These include indirect deaths caused by delayed healthcare, mental health crises, and economic disruptions, as well as reductions in other types of deaths (e.g., traffic accidents) during lockdowns. Additionally, underreporting of COVID-19 deaths and regional differences in healthcare infrastructure and policy responses further contribute to the gap between COVID-19 deaths and excess mortality. While COVID-19 deaths are an important driver, other covariates such as demographic factors, socioeconomic conditions, and state-level interventions likely play a significant role in shaping excess mortality, underscoring the need for more comprehensive models to fully explain the observed trends.
 
 Q5
+
+Our analysis of excess mortality across the six COVID-19 waves reveals notable patterns in state-level outcomes. In Wave 1, New Jersey experienced the highest excess mortality, reflecting the early severity of the pandemic in densely populated regions, while Hawaii’s geographic isolation likely contributed to its low rates. Mississippi consistently ranked among the worst-performing states in Waves 2 and 3, suggesting persistent vulnerabilities such as limited healthcare access or public health measures, whereas Hawaii and Puerto Rico maintained low mortality rates, demonstrating effective pandemic management.
+
+Wave 4 saw a shift, with Alaska and West Virginia showing the highest excess mortality, possibly due to healthcare access challenges in rural areas, while northeastern states like New Jersey and Massachusetts improved, benefiting from strong vaccination campaigns and public health measures. In Wave 5, states like West Virginia and New Mexico were among the worst, reflecting continued challenges in certain regions, while Puerto Rico and Hawaii again performed better, highlighting sustained resilience. By Wave 6, Alaska had the highest excess mortality, likely due to ongoing infrastructure challenges, while Rhode Island achieved the lowest rates, signaling effective public health strategies.
+
+These results emphasize the importance of state-level differences in healthcare capacity, public health policies, and geographic factors in shaping pandemic outcomes. They underscore the need for targeted interventions to address vulnerabilities and strengthen resilience during future health crises.
 
 
 ## References
