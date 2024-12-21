@@ -52,10 +52,6 @@ We began the cleaning and analysis process by defining the six distinct COVID-19
 
 Task 4
 
-We analyzed excess mortality trends using the **population dataset** (`nst-est2020int-pop.xlsx`) and the **death counts dataset** (`Weekly_Counts_of_Deaths_by_Jurisdiction_and_Age_20241220.csv`). Historical mortality data from 2015 to 2019 was utilized to predict future mortality patterns, which were then compared to observed data from 2020 onward. First, we enriched the death counts dataset by adding `week` and `year` columns derived from the date field, facilitating temporal analysis. Using the enriched data, we developed a polynomial regression model for each state, predicting mortality rates (`deaths_per_100k`) as a function of week and year. This model, trained on pre-2020 historical data, was applied to forecast weekly mortality rates for each state from 2020 to 2024. We validated these predictions by merging them with observed mortality data from the same death counts dataset for 2020 and beyond. Excess mortality was calculated as the difference between observed mortality rates and our predicted rates, providing insights into deviations during the pandemic period. The resulting data was visualized to highlight excess mortality trends across states, revealing patterns and variations. To assess the relationship between excess mortality and COVID-related deaths, we calculated the Pearson correlation coefficient to quantify the linear association. Using the merged dataset, we constructed a linear regression model to evaluate how COVID-specific deaths predict excess mortality. The coefficients and confidence intervals from the model provided insights into the statistical significance and reliability of the findings. This analysis integrated the population and death counts datasets with predictive modeling, real-world validation, and statistical analysis to explore excess mortality trends and their link to COVID-related factors, while accounting for assumptions about population stability and addressing limitations such as data quality and external influences.
-
-Task 5
-
 We analyzed excess mortality trends using the population dataset (nst-est2020int-pop.xlsx) and the death counts dataset (Weekly_Counts_of_Deaths_by_Jurisdiction_and_Age_20241220.csv). Historical mortality data from 2015 to 2019 was utilized to predict future mortality patterns, which were then compared to observed data from 2020 onward.
 
 First, we enriched the death counts dataset by adding week and year columns derived from the date field, facilitating temporal analysis. Using the enriched data, we developed a polynomial regression model for each state, predicting mortality rates (deaths_per_100k) as a function of week and year. This model, trained on pre-2020 historical data, was applied to forecast weekly mortality rates for each state from 2020 to 2024. We validated these predictions by merging them with observed mortality data from the same death counts dataset for 2020 and beyond. Excess mortality was calculated as the difference between observed mortality rates and our predicted rates, providing insights into deviations during the pandemic period. The resulting data was visualized to highlight excess mortality trends across states, revealing patterns and variations.
@@ -63,6 +59,21 @@ First, we enriched the death counts dataset by adding week and year columns deri
 To investigate the relationship between excess mortality and COVID-19 deaths across different pandemic waves, we conducted a Chi-square test for each wave with the null hypothesis that the distribution of excess mortality aligns with the distribution of COVID-19 deaths. This analysis added an additional layer of understanding, specifically examining how these distributions aligned during six defined pandemic waves.
 
 To further assess the relationship between excess mortality and COVID-related deaths, we calculated the Pearson correlation coefficient to quantify the linear association. Using the merged dataset, we constructed a linear regression model to evaluate how COVID-specific deaths predict excess mortality. The coefficients and confidence intervals from the model provided insights into the statistical significance and reliability of the findings. This analysis integrated the population and death counts datasets with predictive modeling, real-world validation, and statistical analysis to explore excess mortality trends and their link to COVID-related factors while accounting for assumptions about population stability and addressing limitations such as data quality and external influences.
+
+Task 5
+
+We began by cleaning the dataset to focus on relevant records, assigning each observation to a
+predefined wave (e.g., Wave1, Wave2) based on specific time intervals. Observations without
+a corresponding wave were removed to ensure consistency. We then grouped the data by wave
+and state, calculating the average excess mortality per 100,000 for each state during each wave.
+States were ranked within each wave based on their average excess mortality and categorized
+into the “Worst 5 (Highest)” and “Best 5 (Lowest)” states for further analysis.
+To analyze regional trends, we plotted excess mortality trends for each region from 2020 to
+2024, highlighting state-level variations over time. Additionally, we visualized the rankings by
+creating a bar plot to showcase the top 5 states with the highest average excess mortality and
+the bottom 5 states with the lowest average excess mortality for each wave. This approach
+allowed us to systematically explore temporal and geographic patterns in excess mortality,
+providing insights into the states and regions most and least affected during each wave.
 
 ## **Results**
 
