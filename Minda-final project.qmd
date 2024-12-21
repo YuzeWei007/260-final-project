@@ -776,7 +776,7 @@ ggplot(merged_death_2020_after_prediction, aes(x = week, y = excess_mortality, c
 confidence
 ```{r}
 correlation <- cor(merged_death_2020_after_prediction$excess_mortality, merged_death_2020_after_prediction$deaths_per_100k, method = "pearson")
-print(paste("Pearson correlation coefficient:", correlation))
+
 
 
 ggplot(merged_death_2020_after_prediction, aes(x = deaths_per_100k, y = excess_mortality)) +
@@ -791,12 +791,14 @@ model <- lm(excess_mortality ~ deaths_per_100k, data = merged_death_2020_after_p
 
 
 summary(model)
+print(paste("Pearson correlation coefficient:", correlation))
 
 coef(model)  
 confint(model)  
 
 
 ```
+
 
 Question5
 ```{r}
@@ -821,6 +823,68 @@ for (i in regions2) {
   
   print(p)
 }
+```
+
+
+```{r}
+wave_definitions <- tibble(
+  wave = c("Wave1", "Wave2", "Wave3", "Wave4", "Wave5", "Wave6"),
+  start_date = as.Date(c("2020-03-15", "2020-06-15", "2020-11-15", "2021-07-15", "2021-12-01", "2022-05-15")),
+  end_date = as.Date(c("2020-06-01", "2020-10-01", "2021-04-15", "2021-10-30", "2022-04-01", "2022-10-01"))
+)
+
+merged_death_2020_after_prediction <- merged_death_2020_after_prediction %>%
+  mutate(wave = case_when(
+    between(date, wave_definitions$start_date[1], wave_definitions$end_date[1]) ~ "Wave1",
+    between(date, wave_definitions$start_date[2], wave_definitions$end_date[2]) ~ "Wave2",
+    between(date, wave_definitions$start_date[3], wave_definitions$end_date[3]) ~ "Wave3",
+    between(date, wave_definitions$start_date[4], wave_definitions$end_date[4]) ~ "Wave4",
+    between(date, wave_definitions$start_date[5], wave_definitions$end_date[5]) ~ "Wave5",
+    between(date, wave_definitions$start_date[6], wave_definitions$end_date[6]) ~ "Wave6",
+    TRUE ~ NA_character_
+  )) %>%
+  # Remove rows that have no wave assigned
+  filter(!is.na(wave))
+
+# Identify the top 5 and bottom 5 states for each wave by excess mortality
+top_and_bottom_5_excess <- merged_death_2020_after_prediction %>%
+  group_by(wave, state_name) %>%
+  summarize(avg_excess_mortality = mean(excess_mortality, na.rm = TRUE), .groups = "drop") %>%
+  group_by(wave) %>%
+  mutate(
+    rank = rank(-avg_excess_mortality),
+    rank_category = case_when(
+      rank <= 5 ~ "Worst 5 (Highest)",
+      rank > n() - 5 ~ "Best 5 (Lowest)",
+      TRUE ~ NA_character_
+    )
+  ) %>%
+  filter(!is.na(rank_category))
+
+# Plot the top and bottom 5 states by excess mortality
+ggplot(top_and_bottom_5_excess, aes(x = reorder_within(state_name, avg_excess_mortality, wave), 
+                                    y = avg_excess_mortality, 
+                                    fill = rank_category)) +
+  geom_col() +
+  facet_wrap(~wave, scales = "free") +
+  scale_x_reordered() +
+  scale_fill_manual(
+    values = c("Worst 5 (Highest)" = "#FF69B4", "Best 5 (Lowest)" = "blue"),
+    name = "Category"
+  ) +
+  labs(
+    title = "Best and Worst 5 States by Average Excess Mortality During Each Wave",
+    x = "State",
+    y = "Average Excess Mortality (per 100,000)"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.text.y = element_text(size = 10),
+    legend.position = "bottom",
+    strip.text = element_text(size = 10, face = "bold"),
+    plot.title = element_text(size = 12, face = "bold", hjust = 0.5)
+  )
 
 
 ```
